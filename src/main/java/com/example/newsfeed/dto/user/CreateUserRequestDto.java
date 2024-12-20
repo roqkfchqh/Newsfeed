@@ -3,19 +3,22 @@ package com.example.newsfeed.dto.user;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateUserRequestDto {
 
     @NotBlank @Size(min = 1, max = 4)
-    private String name;
+    private final String name;
 
     @NotBlank @Size(min = 5, max = 50)
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
             message = "올바른 이메일 형식이 아닙니다.")
-    private String email;
+    private final String email;
 
     @NotBlank @Size(min = 6, max = 15)
-    private String password;
+    private final String password;
 }

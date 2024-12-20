@@ -1,5 +1,6 @@
 package com.example.newsfeed.controller;
 
+import com.example.newsfeed.dto.auth.AuthMessageResponseDto;
 import com.example.newsfeed.dto.auth.LoginUserRequestDto;
 import com.example.newsfeed.service.AuthService;
 import com.example.newsfeed.session.SessionUserUtils;
@@ -23,7 +24,7 @@ public class AuthController {
     //request: email, password
     //response -> 완료
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<AuthMessageResponseDto> login(
             @RequestBody LoginUserRequestDto loginUserRequestDto,
             HttpServletRequest request
     ) {
@@ -34,14 +35,15 @@ public class AuthController {
         SessionUserUtils.setId(userId, request);
 
         return ResponseEntity
-                .ok("로그인 성공");
+                .ok()
+                .body(new AuthMessageResponseDto("로그인에 성공하였습니다."));
     }
 
     //session required
     //logout -> session 비활성화
     //response -> 완료
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(
+    public ResponseEntity<AuthMessageResponseDto> logout(
             HttpServletRequest request
     ) {
         HttpSession session = request.getSession(false);
@@ -51,6 +53,7 @@ public class AuthController {
         }
 
         return ResponseEntity
-                .ok("로그인 아웃");
+                .ok()
+                .body(new AuthMessageResponseDto("로그아웃 되었습니다."));
     }
 }

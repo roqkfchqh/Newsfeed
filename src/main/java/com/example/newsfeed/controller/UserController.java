@@ -1,14 +1,13 @@
 package com.example.newsfeed.controller;
 
-import com.example.newsfeed.dto.user.CreateUserRequestDto;
-import com.example.newsfeed.dto.user.CreateUserResponseDto;
+import com.example.newsfeed.dto.user.*;
 import com.example.newsfeed.service.UserService;
+import com.example.newsfeed.session.SessionUserUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,12 +16,12 @@ public class UserController {
 
     private final UserService userService;
 
-    //create POST /users
-    //request: email, name, password
-    //response: email, name, cratedAt
+    /**
+     * 유저 생성(회원 가입)
+     */
     @PostMapping
     public ResponseEntity<CreateUserResponseDto> createUser(
-        @RequestBody CreateUserRequestDto createUserRequestDto
+        @Valid @RequestBody CreateUserRequestDto createUserRequestDto
     ) {
         CreateUserResponseDto data = this.userService.createUser(createUserRequestDto);
 
@@ -31,21 +30,66 @@ public class UserController {
                 .body(data);
     }
 
-    //session required
-    //update PATCH /users
-    //request: updateName
-    //response: updateName, updatedAt
+    /**
+     * 유저(본인) 조회
+     */
+    @GetMapping
+    public ResponseEntity<FetchUserResponseDto> fetchUser(
+            HttpServletRequest request
+    ) {
+        Long userId = SessionUserUtils.getId(request);
+        FetchUserResponseDto data = this.userService.fetchOneById(userId);
 
-    //session required
-    //update PATCH /users/password
-    //request: currentPassword, updatePassword
-    //response: 수정 완료 메세지
+        return ResponseEntity
+                .ok()
+                .body(data);
+    }
 
-    //read GET /users/{userId}
-    //response: email, name, createdAt, updatedAt
+    /**
+     * 유저 이름 수정
+     */
+    @PatchMapping
+    public ResponseEntity<UpdateUserNameResponseDto> updateUserName(
+            @Valid @RequestBody UpdateUserNameRequestDto updateUserReqDto,
+            HttpServletRequest request
+    ) {
+        Long userId = SessionUserUtils.getId(request);
+        UpdateUserNameResponseDto data = this.userService.updateUserName(userId, updateUserReqDto);
 
-    //session required
-    //delete DELETE /users
-    //request: currentPassword
-    //response: 삭제 성공 메시지
+        return ResponseEntity
+                .ok()
+                .body(data);
+    }
+
+    /**
+     * 유저 비밀번호 수정
+     */
+    @PatchMapping("/password")
+    public ResponseEntity<UserMessageResponseDto> updateUserPassword(
+            @Valid @RequestBody UpdateUserPasswordRequestDto updateUserPasswordRequestDto,
+            HttpServletRequest request
+    ) {
+        Long userId = SessionUserUtils.getId(request);
+        this.userService.updateUserPassword(userId, updateUserPasswordRequestDto);
+
+        return ResponseEntity
+                .ok()
+                .body(new UserMessageResponseDto("비밀번호가 성공적으로 수정되었습니다."));
+    }
+
+    /**
+     * 유저 삭제(회원 탈퇴)
+     */
+//    @DeleteMapping
+    public ResponseEntity<UserMessageResponseDto> deleteUser(
+            @Valid @RequestBody DeleteUserRequestDto deleteUserRequestDto
+    ) {
+
+        // 미구현
+//        this.userService.deleteUser(deleteUserRequestDto);
+
+        return ResponseEntity
+                .ok()
+                .body(new UserMessageResponseDto("사용자가 성공적으로 삭제되었습니다."));
+    }
 }

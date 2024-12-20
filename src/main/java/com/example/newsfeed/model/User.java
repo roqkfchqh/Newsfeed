@@ -1,10 +1,7 @@
 package com.example.newsfeed.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -24,9 +21,11 @@ public class User extends BaseEntity {
     @Column(unique = true, length = 50, nullable = false)
     private String email;
 
+    @Setter
     @Column(length = 100, nullable = false)
     private String password;
 
+    @Setter
     @Column(length = 5, nullable = false)
     private String name;
 
