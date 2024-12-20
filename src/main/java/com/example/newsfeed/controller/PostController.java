@@ -3,6 +3,7 @@ package com.example.newsfeed.controller;
 import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
 import com.example.newsfeed.service.PostService;
+import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class PostController {
             HttpServletRequest req,
             @Valid @RequestBody PostRequestDto dto){
 
-        Long userId = (Long) req.getSession().getAttribute("userId");
+        Long userId = SessionUserUtils.getId(req);
 
         return ResponseEntity.ok(postService.createPost(dto, userId));
     }
@@ -39,7 +40,7 @@ public class PostController {
             @PathVariable Long postId,
             @Valid @RequestBody PostRequestDto dto){
 
-        Long userId = (Long) req.getSession().getAttribute("userId");
+        Long userId = SessionUserUtils.getId(req);
 
         return ResponseEntity.ok(postService.updatePost(postId, dto, userId));
     }
@@ -49,7 +50,7 @@ public class PostController {
             HttpServletRequest req,
             @PathVariable Long postId){
 
-        Long userId = (Long) req.getSession().getAttribute("userId");
+        Long userId = SessionUserUtils.getId(req);
 
         postService.likePost(postId, userId);
 
@@ -61,7 +62,7 @@ public class PostController {
             HttpServletRequest req,
             @PathVariable Long postId){
 
-        Long userId = (Long) req.getSession().getAttribute("userId");
+        Long userId = SessionUserUtils.getId(req);
 
         postService.dislikePost(postId, userId);
 
@@ -73,7 +74,7 @@ public class PostController {
             HttpServletRequest req,
             @PathVariable Long postId){
 
-        Long userId = (Long) req.getSession().getAttribute("userId");
+        Long userId = SessionUserUtils.getId(req);
 
         postService.deletePost(userId, postId);
 

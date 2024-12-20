@@ -31,7 +31,7 @@ public abstract class PostAbstractService {
     public final void dislikePost(Long postId, Long userId) {
         userValidator(userId);
         postValidator(postId);
-        executeDislikePost(postId);
+        executeDislikePost(postId, userId);
     }
 
 
@@ -47,7 +47,7 @@ public abstract class PostAbstractService {
 
     protected abstract void executeLikePost(Long postId, Long userId);
 
-    protected abstract void executeDislikePost(Long postId);
+    protected abstract void executeDislikePost(Long postId, Long userId);
 
 
 }

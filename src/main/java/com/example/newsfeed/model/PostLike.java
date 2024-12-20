@@ -1,9 +1,11 @@
 package com.example.newsfeed.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @NoArgsConstructor
 @Table(name = "post_likes")
 public class PostLike {

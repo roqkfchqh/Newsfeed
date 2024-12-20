@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 public class PostService extends PostAbstractService {
@@ -31,7 +29,7 @@ public class PostService extends PostAbstractService {
         Post post = Post.create(dto.getTitle(), dto.getContent(), user);
 
         postRepository.save(post);
-        return PostResponseDto.toCreate(dto.getTitle(), dto.getContent(), getUsername(userId), post.getCreatedAt());
+        return post.toDto(user.getName());
     }
 
     //updatePost
@@ -41,9 +39,7 @@ public class PostService extends PostAbstractService {
         Post post = getPost(postId);
         post.update(dto.getTitle(), dto.getContent());
 
-        LocalDateTime updatedAt = postRepository.findPostUpdatedAtById(postId);
-
-        return PostResponseDto.toUpdate(dto.getTitle(), dto.getContent(), getUsername(userId), updatedAt);
+        return post.toDto(getUsername(userId));
     }
 
     //deletePost
@@ -62,23 +58,26 @@ public class PostService extends PostAbstractService {
     @Transactional
     public void executeLikePost(Long postId, Long userId) {
         Post post = getPost(postId);
-        User user = getUser(userId);
 
         if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
-            throw new CustomException(ErrorCode.NOT_LIKED);
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
 
+        PostLike postLike = PostLike.of(post, getUser(userId));
+        postLikeRepository.save(postLike);
+
         post.likeCnt();
-        postLikeRepository.save(PostLike.of(post, user));
     }
 
     //dislikePost
     @Override
     @Transactional
-    public void executeDislikePost(Long postId) {
-        Post post = getPost(postId);
+    public void executeDislikePost(Long postId, Long userId) {
+        PostLike postLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
+        postLikeRepository.delete(postLike);
+
+        Post post = postLike.getPost();
         post.dislikeCnt();
-        postLikeRepository.deleteById(postId);
     }
 
     @Override

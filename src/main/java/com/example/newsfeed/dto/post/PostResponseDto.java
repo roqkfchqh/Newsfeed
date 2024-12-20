@@ -25,22 +25,4 @@ public class PostResponseDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime updatedAt;
-
-    public static PostResponseDto toCreate(String title, String content, String username, LocalDateTime createdAt) {
-        return PostResponseDto.builder()
-                .title(title)
-                .content(content)
-                .username(username)
-                .createdAt(createdAt)
-                .build();
-    }
-
-    public static PostResponseDto toUpdate(String title, String content, String username, LocalDateTime updatedAt){
-        return PostResponseDto.builder()
-                .title(title)
-                .content(content)
-                .username(username)
-                .updatedAt(updatedAt)
-                .build();
-    }
 }
