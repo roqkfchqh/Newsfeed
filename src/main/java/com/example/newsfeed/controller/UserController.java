@@ -4,6 +4,7 @@ import com.example.newsfeed.dto.user.*;
 import com.example.newsfeed.service.UserService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -80,13 +81,16 @@ public class UserController {
     /**
      * 유저 삭제(회원 탈퇴)
      */
-//    @DeleteMapping
+    @DeleteMapping
     public ResponseEntity<UserMessageResponseDto> deleteUser(
-            @Valid @RequestBody DeleteUserRequestDto deleteUserRequestDto
+            @Valid @RequestBody DeleteUserRequestDto deleteUserRequestDto,
+            HttpServletRequest request
     ) {
+        Long userId = SessionUserUtils.getId(request);
 
-        // 미구현
-//        this.userService.deleteUser(deleteUserRequestDto);
+        this.userService.deleteUser(userId, deleteUserRequestDto);
+
+        SessionUserUtils.invalidate(request);
 
         return ResponseEntity
                 .ok()

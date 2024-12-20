@@ -20,9 +20,9 @@ public class AuthController {
 
     private final AuthService authService;
 
-    //login
-    //request: email, password
-    //response -> 완료
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthMessageResponseDto> login(
             @RequestBody LoginUserRequestDto loginUserRequestDto,
@@ -39,18 +39,14 @@ public class AuthController {
                 .body(new AuthMessageResponseDto("로그인에 성공하였습니다."));
     }
 
-    //session required
-    //logout -> session 비활성화
-    //response -> 완료
+    /**
+     * 로그아웃
+     */
     @PostMapping("/logout")
     public ResponseEntity<AuthMessageResponseDto> logout(
             HttpServletRequest request
     ) {
-        HttpSession session = request.getSession(false);
-
-        if (session != null) {
-            session.invalidate();
-        }
+       SessionUserUtils.invalidate(request);
 
         return ResponseEntity
                 .ok()
