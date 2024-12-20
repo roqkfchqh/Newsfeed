@@ -12,7 +12,7 @@
 | 사용자 생성        | POST       | /users           | No                    | ```json { "email": "user@example.com", "name": "홍길동", "password": "UserPass123!" }``` | ```json { "email": "user@example.com", "name": "홍길동", "createdAt": "2024-01-01" }``` | 201           |
 | 사용자 업데이트    | PATCH      | /users           | Yes                   | ```json { "updateName": "새이름" }```         | ```json { "updateName": "새이름", "updatedAt": "2024-02-01" }``` | 200           |
 | 비밀번호 업데이트 | PATCH      | /users/password  | Yes                   | ```json { "currentPassword": "OldPass123!", "updatePassword": "NewPass123!" }``` | ```json { "message": "비밀번호가 성공적으로 수정되었습니다." }``` | 200           |
-| 사용자 조회        | GET        | /users/{userId}  | Yes                   | -                                             | ```json { "email": "user@example.com", "name": "홍길동", "createdAt": "2024-01-01", "updatedAt": "2024-02-01" }``` | 200           |
+| 사용자 조회        | GET        | /users/{userId}  | No                   | -                                             | ```json { "email": "user@example.com", "name": "홍길동", "createdAt": "2024-01-01", "updatedAt": "2024-02-01" }``` | 200           |
 | 사용자 삭제        | DELETE     | /users           | Yes                   | ```json { "currentPassword": "UserPass123!" }``` | ```json { "message": "사용자가 성공적으로 삭제되었습니다." }``` | 200           |
 
 ---
