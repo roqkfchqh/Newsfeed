@@ -1,6 +1,12 @@
 package com.example.newsfeed.controller;
 
+import com.example.newsfeed.dto.user.CreateUserRequestDto;
+import com.example.newsfeed.dto.user.CreateUserResponseDto;
+import com.example.newsfeed.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,9 +15,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UserController {
 
+    private final UserService userService;
+
     //create POST /users
     //request: email, name, password
     //response: email, name, cratedAt
+    @PostMapping
+    public ResponseEntity<CreateUserResponseDto> createUser(
+        @RequestBody CreateUserRequestDto createUserRequestDto
+    ) {
+        CreateUserResponseDto data = this.userService.createUser(createUserRequestDto);
+
+        return ResponseEntity
+                .ok()
+                .body(data);
+    }
 
     //session required
     //update PATCH /users
