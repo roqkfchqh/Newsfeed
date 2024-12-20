@@ -20,9 +20,9 @@
 ### Posts
 | **기능**          | **Method** | **URL**                | **Session Required** | **Request**                                    | **Response**                                    | **상태 코드** |
 |--------------------|------------|------------------------|-----------------------|-----------------------------------------------|-----------------------------------------------|---------------|
-| 게시물 생성        | POST       | /posts                 | Yes                   | ```json { "title": "게시물 제목", "content": "내용" }``` | ```json { "id": 1, "title": "게시물 제목", "createdAt": "2024-01-01" }``` | 201           |
-| 게시물 조회        | GET        | /posts                 | No                    | -                                             | ```json [ { "id": 1, "title": "게시물 제목", "createdAt": "2024-01-01" } ]``` | 200           |
-| 게시물 갱신        | PATCH      | /posts/{postId}        | Yes                   | ```json { "title": "새 제목", "content": "새 내용" }``` | ```json { "id": 1, "title": "새 제목", "updatedAt": "2024-02-01" }``` | 200           |
+| 게시물 생성        | POST       | /posts                 | Yes                   | ```json { "title": "게시물 제목", "content": "내용" }``` | ```json { "title": "게시물 제목", "content" : "게시물 내용", "username" : "홍길동", "createdAt": "2024-01-01" }``` | 201           |
+| 게시물 조회        | GET        | /posts                 | No                    | -                                             | ```json { "title": "게시물 제목", "content" : "게시물 내용", "username" : "홍길동", "createdAt": "2024-01-01", "updatedAt": "2024-01-01"}``` | 200           |
+| 게시물 갱신        | PATCH      | /posts/{postId}        | Yes                   | ```json { "title": "새 제목", "content": "새 내용" }``` | ```json { "title": "게시물 제목", "content" : "게시물 내용", "username" : "홍길동", "updatedAt": "2024-01-01" }``` | 200           |
 | 게시물 삭제        | DELETE     | /posts/{postId}        | Yes                   | -                                             | ```json { "message": "게시물이 성공적으로 삭제되었습니다." }``` | 200           |
 | 좋아요 추가        | POST       | /posts/{postId}/likes  | Yes                   | -                                             | ```json { "message": "좋아요가 추가되었습니다." }``` | 200           |
 | 좋아요 삭제        | DELETE     | /posts/{postId}/likes  | Yes                   | -                                             | ```json { "message": "좋아요가 삭제되었습니다." }``` | 200           |
