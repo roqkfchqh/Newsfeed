@@ -1,8 +1,10 @@
 package com.example.newsfeed.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @NoArgsConstructor
 @Table(name = "posts")
