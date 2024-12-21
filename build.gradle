@@ -27,8 +27,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-
-    //bcrypt(우탁)
+    //bcrypt
     implementation 'at.favre.lib:bcrypt:0.10.2'
 
     //lombok
@@ -42,8 +41,12 @@ dependencies {
     //mysql(우탁)
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    //h2 Database
+    //h2 Database(규민)
     runtimeOnly 'com.h2database:h2'
+
+    //postgresql(채영)
+    implementation 'org.postgresql:postgresql:42.7.2'
+    runtimeOnly 'org.postgresql:postgresql'
 
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
