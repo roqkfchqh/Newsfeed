@@ -2,17 +2,25 @@ package com.example.newsfeed.service;
 
 import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
+import com.example.newsfeed.dto.post.ReadPageResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
 import com.example.newsfeed.model.Post;
 import com.example.newsfeed.model.PostLike;
 import com.example.newsfeed.model.User;
+import com.example.newsfeed.repository.CommentRepository;
 import com.example.newsfeed.repository.PostLikeRepository;
 import com.example.newsfeed.repository.PostRepository;
 import com.example.newsfeed.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,8 +29,9 @@ public class PostService extends PostAbstractService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final CommentRepository commentRepository;
 
-    //createPost
+    //create
     @Override
     protected PostResponseDto executeCreatePost(PostRequestDto dto, Long userId){
         User user = getUser(userId);
@@ -32,7 +41,23 @@ public class PostService extends PostAbstractService {
         return post.toDto(getUsername(userId));
     }
 
-    //updatePost
+    //get friends posts
+    @Override
+    protected List<PostResponseDto> executeGetPosts(Long userId, Sort sort){
+        return postRepository.findPostsByFriends(userId, sort);
+    }
+
+    //read
+    @Override
+    public Map<PostResponseDto, List<ReadPageResponseDto>> executeReadPost(Long postId, Pageable pageable){
+        Post post = getPost(postId);
+        Page<ReadPageResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable);
+
+        PostResponseDto result = post.toDto(getUsername(post.getUser().getId()));
+        return Map.of(result, comments.getContent());
+    }
+
+    //update
     @Override
     @Transactional
     protected PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId){
@@ -42,16 +67,10 @@ public class PostService extends PostAbstractService {
         return post.toDto(getUsername(userId));
     }
 
-    //deletePost
+    //delete
     @Override
     protected void executeDeletePost(Long postId){
         postRepository.deleteById(postId);
-    }
-
-    //getPost
-    @Override
-    public PostResponseDto executeReadPost(Long postId){
-        return postRepository.findPostWithUsernameById(postId);
     }
 
     //likePost

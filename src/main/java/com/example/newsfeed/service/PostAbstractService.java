@@ -2,6 +2,12 @@ package com.example.newsfeed.service;
 
 import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
+import com.example.newsfeed.dto.post.ReadPageResponseDto;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import java.util.List;
+import java.util.Map;
 
 public abstract class PostAbstractService {
 
@@ -11,10 +17,16 @@ public abstract class PostAbstractService {
         return executeCreatePost(dto, userId);
     }
 
+    //get friends posts
+    public final List<PostResponseDto> getPosts(Long userId, Sort sort) {
+        userValidator(userId);
+        return executeGetPosts(userId, sort);
+    }
+
     //read
-    public final PostResponseDto readPost(Long postId){
+    public final Map<PostResponseDto, List<ReadPageResponseDto>> readPost(Long postId, Pageable pageable) {
         userValidator(postId);
-        return executeReadPost(postId);
+        return executeReadPost(postId, pageable);
     }
 
     //update
@@ -55,11 +67,10 @@ public abstract class PostAbstractService {
 
     //business logic
     protected abstract PostResponseDto executeCreatePost(PostRequestDto dto, Long userId);
-    protected abstract PostResponseDto executeReadPost(Long postId);
+    protected abstract List<PostResponseDto> executeGetPosts(Long userId, Sort sort);
+    protected abstract Map<PostResponseDto, List<ReadPageResponseDto>> executeReadPost(Long postId, Pageable pageable);
     protected abstract PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId);
     protected abstract void executeDeletePost(Long postId);
     protected abstract void executeLikePost(Long postId, Long userId);
     protected abstract void executeDislikePost(Long postId, Long userId);
-
-
 }
