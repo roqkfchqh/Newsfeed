@@ -1,14 +1,15 @@
 package com.example.newsfeed.controller;
 
-import com.example.newsfeed.dto.CommentRequestDto;
-import com.example.newsfeed.dto.CommentResponseDto;
+import com.example.newsfeed.dto.comment.CommentRequestDto;
+import com.example.newsfeed.dto.comment.CommentResponseDto;
+import com.example.newsfeed.service.CommentLikeService;
 import com.example.newsfeed.service.CommentService;
-import com.example.newsfeed.util.SessionUserUtils;
+import com.example.newsfeed.session.SessionUserUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -17,6 +18,7 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
+    private final CommentLikeService commentLikeService;
 
     // Create a new comment (POST /comments)
     @PostMapping
@@ -42,19 +44,18 @@ public class CommentController {
     // Read a specific comment (GET /comments/{commentId})
     @GetMapping("/{commentId}")
     public ResponseEntity<CommentResponseDto> getComment(
-            @PathVariable Long commentId,
-            HttpServletRequest request) {
-        Long userId = SessionUserUtils.getId(request);
+            @PathVariable Long commentId) {
         CommentResponseDto responseDto = commentService.getComment(commentId);
         return ResponseEntity.ok(responseDto);
     }
 
     // Get all comments (GET /comments)
     @GetMapping
-    public ResponseEntity<List<CommentResponseDto>> getAllComments(@RequestParam(value = "postId", required = false) Long postId) {
-        List<CommentResponseDto> responseDtos = commentService.getAllComments(postId);
+    public ResponseEntity<List<CommentResponseDto>> getAllComments() {
+        List<CommentResponseDto> responseDtos = commentService.getAllComments();
         return ResponseEntity.ok(responseDtos);
     }
+
 
     // Like a comment (POST /comments/{commentId}/likes)
     @PostMapping("/{commentId}/likes")
@@ -62,7 +63,7 @@ public class CommentController {
             @PathVariable Long commentId,
             HttpServletRequest request) {
         Long userId = SessionUserUtils.getId(request);
-        commentService.likeComment(userId, commentId);
+        commentLikeService.likeComment(userId, commentId);
         return ResponseEntity.ok("Like added successfully");
     }
 
@@ -72,7 +73,7 @@ public class CommentController {
             @PathVariable Long commentId,
             HttpServletRequest request) {
         Long userId = SessionUserUtils.getId(request);
-        commentService.unlikeComment(userId, commentId);
+        commentLikeService.unlikeComment(userId, commentId);
         return ResponseEntity.ok("Like removed successfully");
     }
 
