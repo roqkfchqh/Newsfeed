@@ -29,7 +29,7 @@ public class PostService extends PostAbstractService {
         Post post = Post.create(dto.getTitle(), dto.getContent(), user);
 
         postRepository.save(post);
-        return post.toDto(user.getName());
+        return post.toDto(getUsername(userId));
     }
 
     //updatePost
@@ -49,7 +49,8 @@ public class PostService extends PostAbstractService {
     }
 
     //getPost
-    public PostResponseDto readPost(Long postId){
+    @Override
+    public PostResponseDto executeReadPost(Long postId){
         return postRepository.findPostWithUsernameById(postId);
     }
 
@@ -58,10 +59,6 @@ public class PostService extends PostAbstractService {
     @Transactional
     public void executeLikePost(Long postId, Long userId) {
         Post post = getPost(postId);
-
-        if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
-            throw new CustomException(ErrorCode.ALREADY_LIKED);
-        }
 
         PostLike postLike = PostLike.of(post, getUser(userId));
         postLikeRepository.save(postLike);
@@ -76,9 +73,13 @@ public class PostService extends PostAbstractService {
         PostLike postLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
         postLikeRepository.delete(postLike);
 
-        Post post = postLike.getPost();
+        Post post = getPost(postId);
         post.dislikeCnt();
     }
+
+    /*
+    validator
+    */
 
     @Override
     protected void userValidator(Long userId){
@@ -97,6 +98,24 @@ public class PostService extends PostAbstractService {
         postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CONTENT_NOT_FOUND));
     }
+
+    @Override
+    protected void likeValidator(Long postId, Long userId){
+        if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
+        }
+    }
+
+    @Override
+    protected void dislikeValidator(Long postId, Long userId){
+        if(!postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
+            throw new CustomException(ErrorCode.NOT_LIKED);
+        }
+    }
+
+    /*
+    getter method(repository)
+     */
 
     private Post getPost(Long postId) {
         return postRepository.findById(postId)
