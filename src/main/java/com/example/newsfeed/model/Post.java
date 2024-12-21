@@ -2,8 +2,10 @@ package com.example.newsfeed.model;
 
 import com.example.newsfeed.dto.post.PostResponseDto;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @NoArgsConstructor
 @Table(name = "posts")

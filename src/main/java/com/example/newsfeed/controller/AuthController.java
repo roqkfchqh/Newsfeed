@@ -2,10 +2,9 @@ package com.example.newsfeed.controller;
 
 import com.example.newsfeed.dto.auth.AuthMessageResponseDto;
 import com.example.newsfeed.dto.auth.LoginUserRequestDto;
-import com.example.newsfeed.service.AuthService;
+import com.example.newsfeed.service.AuthServiceImpl;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,11 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthServiceImpl authService;
 
-    //login
-    //request: email, password
-    //response -> 완료
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthMessageResponseDto> login(
             @RequestBody LoginUserRequestDto loginUserRequestDto,
@@ -39,18 +38,14 @@ public class AuthController {
                 .body(new AuthMessageResponseDto("로그인에 성공하였습니다."));
     }
 
-    //session required
-    //logout -> session 비활성화
-    //response -> 완료
+    /**
+     * 로그아웃
+     */
     @PostMapping("/logout")
     public ResponseEntity<AuthMessageResponseDto> logout(
             HttpServletRequest request
     ) {
-        HttpSession session = request.getSession(false);
-
-        if (session != null) {
-            session.invalidate();
-        }
+       SessionUserUtils.invalidate(request);
 
         return ResponseEntity
                 .ok()

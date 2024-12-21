@@ -20,4 +20,12 @@ public class SessionUserUtils {
         HttpSession session = request.getSession();
         session.setAttribute(SessionTags.LOGIN_USER.getTag(), id);
     }
+
+    public static void invalidate(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            session.invalidate();
+        }
+    }
 }
