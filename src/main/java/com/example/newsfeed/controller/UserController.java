@@ -1,10 +1,10 @@
 package com.example.newsfeed.controller;
 
+import com.example.newsfeed.dto.BaseResponseDto;
 import com.example.newsfeed.dto.user.*;
-import com.example.newsfeed.service.UserService;
+import com.example.newsfeed.service.UserServiceImpl;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,27 +15,27 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     /**
      * 유저 생성(회원 가입)
      */
     @PostMapping
-    public ResponseEntity<CreateUserResponseDto> createUser(
+    public ResponseEntity<BaseResponseDto<CreateUserResponseDto>> createUser(
         @Valid @RequestBody CreateUserRequestDto createUserRequestDto
     ) {
         CreateUserResponseDto data = this.userService.createUser(createUserRequestDto);
 
         return ResponseEntity
                 .ok()
-                .body(data);
+                .body(new BaseResponseDto<>(data));
     }
 
     /**
      * 유저(본인) 조회
      */
     @GetMapping
-    public ResponseEntity<FetchUserResponseDto> fetchUser(
+    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> fetchUser(
             HttpServletRequest request
     ) {
         Long userId = SessionUserUtils.getId(request);
@@ -43,14 +43,14 @@ public class UserController {
 
         return ResponseEntity
                 .ok()
-                .body(data);
+                .body(new BaseResponseDto<>(data));
     }
 
     /**
      * 유저 이름 수정
      */
     @PatchMapping
-    public ResponseEntity<UpdateUserNameResponseDto> updateUserName(
+    public ResponseEntity<BaseResponseDto<UpdateUserNameResponseDto>> updateUserName(
             @Valid @RequestBody UpdateUserNameRequestDto updateUserReqDto,
             HttpServletRequest request
     ) {
@@ -59,7 +59,7 @@ public class UserController {
 
         return ResponseEntity
                 .ok()
-                .body(data);
+                .body(new BaseResponseDto<>(data));
     }
 
     /**

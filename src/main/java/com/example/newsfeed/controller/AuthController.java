@@ -2,10 +2,9 @@ package com.example.newsfeed.controller;
 
 import com.example.newsfeed.dto.auth.AuthMessageResponseDto;
 import com.example.newsfeed.dto.auth.LoginUserRequestDto;
-import com.example.newsfeed.service.AuthService;
+import com.example.newsfeed.service.AuthServiceImpl;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthServiceImpl authService;
 
     /**
      * 로그인
