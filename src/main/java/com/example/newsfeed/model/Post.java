@@ -48,11 +48,11 @@ public class Post extends BaseEntity {
         this.like_cnt --;
     }
 
-    public PostResponseDto toDto(String username) {
+    public PostResponseDto toDto() {
         return PostResponseDto.builder()
                 .title(this.title)
                 .content(this.content)
-                .username(username)
+                .username(this.user.getName())
                 .like_cnt(this.like_cnt)
                 .createdAt(this.getCreatedAt())
                 .updatedAt(this.getUpdatedAt())

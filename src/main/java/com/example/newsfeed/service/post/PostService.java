@@ -1,4 +1,4 @@
-package com.example.newsfeed.service;
+package com.example.newsfeed.service.post;
 
 import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
@@ -26,12 +26,13 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class PostService extends BaseAbstractService<PostResponseDto, PostRequestDto, ReadPageResponseDto> {
+public class PostService extends BaseAbstractService<PostResponseDto, PostRequestDto> {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
+    private final CudStrategy<PostResponseDto, PostRequestDto> cudStrategy;
     private final SingleValidationStrategy<Long> userValidationStrategy;
     private final SingleValidationStrategy<Long> postValidationStrategy;
     private final DualValidationStrategy<Long> likeValidationStrategy;
@@ -40,44 +41,33 @@ public class PostService extends BaseAbstractService<PostResponseDto, PostReques
     //create
     @Override
     protected PostResponseDto executeCreate(PostRequestDto dto, Long userId){
-        User user = getUser(userId);
-        Post post = Post.create(dto.getTitle(), dto.getContent(), user);
-
-        postRepository.save(post);
-        return post.toDto(getUsername(userId));
-    }
-
-    //get friends posts
-    @Override
-    protected List<PostResponseDto> executeGetAll(Long userId, Sort sort){
-        return postRepository.findPostsByFriends(userId, sort);
-    }
-
-    //read
-    @Override
-    public Map<PostResponseDto, List<ReadPageResponseDto>> executeGet(Long postId, Pageable pageable){
-        Post post = getPost(postId);
-        Page<ReadPageResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable);
-
-        PostResponseDto result = post.toDto(getUsername(post.getUser().getId()));
-        return Map.of(result, comments.getContent());
+        return cudStrategy.create(dto, userId);
     }
 
     //update
     @Override
-    @Transactional
     protected PostResponseDto executeUpdate(PostRequestDto dto, Long userId, Long postId){
-
-        Post post = getPost(postId);
-        post.update(dto.getTitle(), dto.getContent());
-
-        return post.toDto(getUsername(userId));
+        return cudStrategy.update(dto, userId, postId);
     }
 
     //delete
     @Override
     protected void executeDelete(Long postId){
-        postRepository.deleteById(postId);
+        cudStrategy.delete(postId);
+    }
+
+    //get friends posts
+    public List<PostResponseDto> getFriendsPosts(Long userId, Sort sort){
+        return postRepository.findPostsByFriends(userId, sort);
+    }
+
+    //read
+    public Map<PostResponseDto, List<ReadPageResponseDto>> getPost(Long postId, Pageable pageable){
+        Post post = getPost(postId);
+        Page<ReadPageResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable);
+
+        PostResponseDto result = post.toDto();
+        return Map.of(result, comments.getContent());
     }
 
     //likePost
@@ -132,9 +122,5 @@ public class PostService extends BaseAbstractService<PostResponseDto, PostReques
     private User getUser(Long userId){
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
-
-    private String getUsername(Long userId) {
-        return userRepository.findNameById(userId);
     }
 }

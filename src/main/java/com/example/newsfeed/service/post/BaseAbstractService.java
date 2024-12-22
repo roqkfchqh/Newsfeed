@@ -1,31 +1,14 @@
-package com.example.newsfeed.service;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
-import java.util.List;
-import java.util.Map;
+package com.example.newsfeed.service.post;
 
 /**
  * @param <S> response
  * @param <Q> request
- * @param <R> readResponseDto << 수정 필요함. 아마도?
  */
-public abstract class BaseAbstractService<S, Q, R> {
+public abstract class BaseAbstractService<S, Q> {
 
     public final S create(Q entity, Long userId){
         userValidate(userId);
         return executeCreate(entity, userId);
-    }
-
-    public final List<S> getAll(Long userId, Sort sort){
-        userValidate(userId);
-        return executeGetAll(userId, sort);
-    }
-
-    public final Map<S, List<R>> get(Long userId, Pageable pageable){
-        userValidate(userId);
-        return executeGet(userId, pageable);
     }
 
     public final S update(Q entity, Long userId, Long entityId){
@@ -58,12 +41,6 @@ public abstract class BaseAbstractService<S, Q, R> {
 
     //create(save)
     protected abstract S executeCreate(Q entity, Long userId);
-
-    //getAll
-    protected abstract List<S> executeGetAll(Long userId, Sort sort);
-
-    //get
-    protected abstract Map<S, List<R>> executeGet(Long userId, Pageable pageable);
 
     //update
     protected abstract S executeUpdate(Q entity, Long userId, Long entityId);

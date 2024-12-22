@@ -5,7 +5,7 @@ import com.example.newsfeed.dto.post.PostResponseDto;
 import com.example.newsfeed.dto.post.ReadPageResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
-import com.example.newsfeed.service.PostService;
+import com.example.newsfeed.service.post.PostService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -52,7 +52,7 @@ public class PostController {
 
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
 
-        List<PostResponseDto> posts = postService.getAll(userId, sort);
+        List<PostResponseDto> posts = postService.getFriendsPosts(userId, sort);
 
         Map<String, Object> response = new HashMap<>();
         response.put("posts", posts);
@@ -70,7 +70,7 @@ public class PostController {
 
         Pageable pageable = validatePageSize(page, size);
 
-        return ResponseEntity.ok(postService.get(postId, pageable));
+        return ResponseEntity.ok(postService.getPost(postId, pageable));
     }
 
     //update
