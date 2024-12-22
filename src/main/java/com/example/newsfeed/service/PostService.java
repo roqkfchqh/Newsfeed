@@ -1,4 +1,4 @@
-package com.example.newsfeed.service.post;
+package com.example.newsfeed.service;
 
 import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
@@ -12,8 +12,6 @@ import com.example.newsfeed.repository.CommentRepository;
 import com.example.newsfeed.repository.PostLikeRepository;
 import com.example.newsfeed.repository.PostRepository;
 import com.example.newsfeed.repository.UserRepository;
-import com.example.newsfeed.service.validation.normal.DualValidationStrategy;
-import com.example.newsfeed.service.validation.normal.SingleValidationStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,43 +24,32 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class PostService extends BaseAbstractService<PostResponseDto, PostRequestDto> {
+public class PostService extends PostAbstractService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
-    private final CudStrategy<PostResponseDto, PostRequestDto> cudStrategy;
-    private final SingleValidationStrategy<Long> userValidationStrategy;
-    private final SingleValidationStrategy<Long> postValidationStrategy;
-    private final DualValidationStrategy<Long> likeValidationStrategy;
-    private final DualValidationStrategy<Long> dislikeValidationStrategy;
 
     //create
     @Override
-    protected PostResponseDto executeCreate(PostRequestDto dto, Long userId){
-        return cudStrategy.create(dto, userId);
-    }
+    protected PostResponseDto executeCreatePost(PostRequestDto dto, Long userId){
+        User user = getUser(userId);
+        Post post = Post.create(dto.getTitle(), dto.getContent(), user);
 
-    //update
-    @Override
-    protected PostResponseDto executeUpdate(PostRequestDto dto, Long userId, Long postId){
-        return cudStrategy.update(dto, userId, postId);
-    }
-
-    //delete
-    @Override
-    protected void executeDelete(Long postId){
-        cudStrategy.delete(postId);
+        postRepository.save(post);
+        return post.toDto();
     }
 
     //get friends posts
-    public List<PostResponseDto> getFriendsPosts(Long userId, Sort sort){
+    @Override
+    protected List<PostResponseDto> executeGetPosts(Long userId, Sort sort){
         return postRepository.findPostsByFriends(userId, sort);
     }
 
     //read
-    public Map<PostResponseDto, List<ReadPageResponseDto>> getPost(Long postId, Pageable pageable){
+    @Override
+    public Map<PostResponseDto, List<ReadPageResponseDto>> executeReadPost(Long postId, Pageable pageable){
         Post post = getPost(postId);
         Page<ReadPageResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable);
 
@@ -70,13 +57,28 @@ public class PostService extends BaseAbstractService<PostResponseDto, PostReques
         return Map.of(result, comments.getContent());
     }
 
+    //update
+    @Override
+    @Transactional
+    protected PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId){
+        Post post = getPost(postId);
+        post.update(dto.getTitle(), dto.getContent());
+
+        return post.toDto();
+    }
+
+    //delete
+    @Override
+    protected void executeDeletePost(Long postId){
+        postRepository.deleteById(postId);
+    }
+
     //likePost
     @Override
     @Transactional
-    public void executeLike(Long postId, Long userId) {
-        likeValidationStrategy.validate(postId, userId);
-
+    public void executeLikePost(Long postId, Long userId) {
         Post post = getPost(postId);
+
         PostLike postLike = PostLike.of(post, getUser(userId));
         postLikeRepository.save(postLike);
 
@@ -86,9 +88,7 @@ public class PostService extends BaseAbstractService<PostResponseDto, PostReques
     //dislikePost
     @Override
     @Transactional
-    public void executeDislike(Long postId, Long userId) {
-        dislikeValidationStrategy.validate(postId, userId);
-
+    public void executeDislikePost(Long postId, Long userId) {
         PostLike postLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
         postLikeRepository.delete(postLike);
 
@@ -101,17 +101,39 @@ public class PostService extends BaseAbstractService<PostResponseDto, PostReques
     */
 
     @Override
-    protected void userValidate(Long userId){
-        userValidationStrategy.validate(userId);
+    protected void userValidator(Long userId){
+        if(userId == null){
+            throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        }
+        userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Override
-    protected void validate(Long postId){
-        postValidationStrategy.validate(postId);
+    protected void postValidator(Long postId){
+        if(postId == null){
+            throw new CustomException(ErrorCode.NOT_FOUND);
+        }
+        postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CONTENT_NOT_FOUND));
+    }
+
+    @Override
+    protected void likeValidator(Long postId, Long userId){
+        if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
+        }
+    }
+
+    @Override
+    protected void dislikeValidator(Long postId, Long userId){
+        if(!postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
+            throw new CustomException(ErrorCode.NOT_LIKED);
+        }
     }
 
     /*
-    helper method
+    getter method(repository)
      */
 
     private Post getPost(Long postId) {

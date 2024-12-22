@@ -5,7 +5,7 @@ import com.example.newsfeed.dto.post.PostResponseDto;
 import com.example.newsfeed.dto.post.ReadPageResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
-import com.example.newsfeed.service.post.PostService;
+import com.example.newsfeed.service.PostService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -38,7 +38,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        return ResponseEntity.ok(postService.create(dto, userId));
+        return ResponseEntity.ok(postService.createPost(dto, userId));
     }
 
     //get friends posts
@@ -52,7 +52,7 @@ public class PostController {
 
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
 
-        List<PostResponseDto> posts = postService.getFriendsPosts(userId, sort);
+        List<PostResponseDto> posts = postService.getPosts(userId, sort);
 
         Map<String, Object> response = new HashMap<>();
         response.put("posts", posts);
@@ -70,7 +70,7 @@ public class PostController {
 
         Pageable pageable = validatePageSize(page, size);
 
-        return ResponseEntity.ok(postService.getPost(postId, pageable));
+        return ResponseEntity.ok(postService.readPost(postId, pageable));
     }
 
     //update
@@ -82,7 +82,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        return ResponseEntity.ok(postService.update(dto, userId, postId));
+        return ResponseEntity.ok(postService.updatePost(postId, dto, userId));
     }
 
     //like
@@ -93,7 +93,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        postService.like(postId, userId);
+        postService.likePost(postId, userId);
 
         return ResponseEntity.ok("좋아요가 추가되었습니다.");
     }
@@ -106,7 +106,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        postService.dislike(postId, userId);
+        postService.dislikePost(postId, userId);
 
         return ResponseEntity.ok("좋아요가 삭제되었습니다.");
     }
@@ -119,7 +119,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        postService.delete(userId, postId);
+        postService.deletePost(userId, postId);
 
         return ResponseEntity.ok("게시물이 성공적으로 삭제되었습니다.");
     }
