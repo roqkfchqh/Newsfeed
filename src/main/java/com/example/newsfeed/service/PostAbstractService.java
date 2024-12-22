@@ -25,7 +25,7 @@ public abstract class PostAbstractService {
 
     //read
     public final Map<PostResponseDto, List<ReadPageResponseDto>> readPost(Long postId, Pageable pageable) {
-        userValidator(postId);
+        postValidator(postId);
         return executeReadPost(postId, pageable);
     }
 

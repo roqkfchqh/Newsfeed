@@ -12,6 +12,8 @@ import com.example.newsfeed.repository.CommentRepository;
 import com.example.newsfeed.repository.PostLikeRepository;
 import com.example.newsfeed.repository.PostRepository;
 import com.example.newsfeed.repository.UserRepository;
+import com.example.newsfeed.service.validation.normal.DualValidationStrategy;
+import com.example.newsfeed.service.validation.normal.SingleValidationStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,16 +26,20 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class PostService extends PostAbstractService {
+public class PostService extends BaseAbstractService<PostResponseDto, PostRequestDto, ReadPageResponseDto> {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
+    private final SingleValidationStrategy<Long> userValidationStrategy;
+    private final SingleValidationStrategy<Long> postValidationStrategy;
+    private final DualValidationStrategy<Long> likeValidationStrategy;
+    private final DualValidationStrategy<Long> dislikeValidationStrategy;
 
     //create
     @Override
-    protected PostResponseDto executeCreatePost(PostRequestDto dto, Long userId){
+    protected PostResponseDto executeCreate(PostRequestDto dto, Long userId){
         User user = getUser(userId);
         Post post = Post.create(dto.getTitle(), dto.getContent(), user);
 
@@ -43,13 +49,13 @@ public class PostService extends PostAbstractService {
 
     //get friends posts
     @Override
-    protected List<PostResponseDto> executeGetPosts(Long userId, Sort sort){
+    protected List<PostResponseDto> executeGetAll(Long userId, Sort sort){
         return postRepository.findPostsByFriends(userId, sort);
     }
 
     //read
     @Override
-    public Map<PostResponseDto, List<ReadPageResponseDto>> executeReadPost(Long postId, Pageable pageable){
+    public Map<PostResponseDto, List<ReadPageResponseDto>> executeGet(Long postId, Pageable pageable){
         Post post = getPost(postId);
         Page<ReadPageResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable);
 
@@ -60,7 +66,8 @@ public class PostService extends PostAbstractService {
     //update
     @Override
     @Transactional
-    protected PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId){
+    protected PostResponseDto executeUpdate(PostRequestDto dto, Long userId, Long postId){
+
         Post post = getPost(postId);
         post.update(dto.getTitle(), dto.getContent());
 
@@ -69,16 +76,17 @@ public class PostService extends PostAbstractService {
 
     //delete
     @Override
-    protected void executeDeletePost(Long postId){
+    protected void executeDelete(Long postId){
         postRepository.deleteById(postId);
     }
 
     //likePost
     @Override
     @Transactional
-    public void executeLikePost(Long postId, Long userId) {
-        Post post = getPost(postId);
+    public void executeLike(Long postId, Long userId) {
+        likeValidationStrategy.validate(postId, userId);
 
+        Post post = getPost(postId);
         PostLike postLike = PostLike.of(post, getUser(userId));
         postLikeRepository.save(postLike);
 
@@ -88,7 +96,9 @@ public class PostService extends PostAbstractService {
     //dislikePost
     @Override
     @Transactional
-    public void executeDislikePost(Long postId, Long userId) {
+    public void executeDislike(Long postId, Long userId) {
+        dislikeValidationStrategy.validate(postId, userId);
+
         PostLike postLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
         postLikeRepository.delete(postLike);
 
@@ -101,39 +111,17 @@ public class PostService extends PostAbstractService {
     */
 
     @Override
-    protected void userValidator(Long userId){
-        if(userId == null){
-            throw new CustomException(ErrorCode.LOGIN_REQUIRED);
-        }
-        userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    protected void userValidate(Long userId){
+        userValidationStrategy.validate(userId);
     }
 
     @Override
-    protected void postValidator(Long postId){
-        if(postId == null){
-            throw new CustomException(ErrorCode.NOT_FOUND);
-        }
-        postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.CONTENT_NOT_FOUND));
-    }
-
-    @Override
-    protected void likeValidator(Long postId, Long userId){
-        if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
-            throw new CustomException(ErrorCode.ALREADY_LIKED);
-        }
-    }
-
-    @Override
-    protected void dislikeValidator(Long postId, Long userId){
-        if(!postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
-            throw new CustomException(ErrorCode.NOT_LIKED);
-        }
+    protected void validate(Long postId){
+        postValidationStrategy.validate(postId);
     }
 
     /*
-    getter method(repository)
+    helper method
      */
 
     private Post getPost(Long postId) {

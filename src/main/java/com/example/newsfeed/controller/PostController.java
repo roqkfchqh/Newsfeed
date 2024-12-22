@@ -38,7 +38,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        return ResponseEntity.ok(postService.createPost(dto, userId));
+        return ResponseEntity.ok(postService.create(dto, userId));
     }
 
     //get friends posts
@@ -52,7 +52,7 @@ public class PostController {
 
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
 
-        List<PostResponseDto> posts = postService.getPosts(userId, sort);
+        List<PostResponseDto> posts = postService.getAll(userId, sort);
 
         Map<String, Object> response = new HashMap<>();
         response.put("posts", posts);
@@ -70,7 +70,7 @@ public class PostController {
 
         Pageable pageable = validatePageSize(page, size);
 
-        return ResponseEntity.ok(postService.readPost(postId, pageable));
+        return ResponseEntity.ok(postService.get(postId, pageable));
     }
 
     //update
@@ -82,7 +82,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        return ResponseEntity.ok(postService.updatePost(postId, dto, userId));
+        return ResponseEntity.ok(postService.update(dto, userId, postId));
     }
 
     //like
@@ -93,7 +93,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        postService.likePost(postId, userId);
+        postService.like(postId, userId);
 
         return ResponseEntity.ok("좋아요가 추가되었습니다.");
     }
@@ -106,7 +106,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        postService.dislikePost(postId, userId);
+        postService.dislike(postId, userId);
 
         return ResponseEntity.ok("좋아요가 삭제되었습니다.");
     }
@@ -119,7 +119,7 @@ public class PostController {
 
         Long userId = SessionUserUtils.getId(req);
 
-        postService.deletePost(userId, postId);
+        postService.delete(userId, postId);
 
         return ResponseEntity.ok("게시물이 성공적으로 삭제되었습니다.");
     }
