@@ -15,9 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,30 +39,23 @@ public class PostController {
     }
 
     //get friends posts
-    //dto로 따로 만들기 response
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getFriendPosts(
+    public ResponseEntity<List<PostResponseDto>> getFriendPosts(
             HttpServletRequest request,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction) {
 
         Long userId = SessionUserUtils.getId(request);
-
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
 
         List<PostResponseDto> posts = postService.getPosts(userId, sort);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("posts", posts);
-        response.put("count", posts.size());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(posts);
     }
 
     //read
-    //dto로 따로 만들기 response
     @GetMapping("/{postId}")
-    public ResponseEntity<Map<PostResponseDto, List<PageCommentsResponseDto>>> getPost(
+    public ResponseEntity<PostResponseDto> getPost(
             @PathVariable Long postId,
             @RequestParam(defaultValue = PAGE_COUNT) int page,
             @RequestParam(defaultValue = PAGE_SIZE) int size){

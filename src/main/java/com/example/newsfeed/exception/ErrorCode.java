@@ -23,6 +23,7 @@ public enum ErrorCode {
 
     //403
     FORBIDDEN_OPERATION(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    FORBIDDEN_OPERATION_LIKE(HttpStatus.FORBIDDEN, "본인의 게시글 또는 댓글에는 좋아요 기능을 사용할 수 없습니다."),
 
     //404
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),

@@ -5,6 +5,7 @@ import com.example.newsfeed.dto.auth.LoginUserRequestDto;
 import com.example.newsfeed.service.AuthServiceImpl;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +25,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<AuthMessageResponseDto> login(
-            @RequestBody LoginUserRequestDto loginUserRequestDto,
+            @Valid @RequestBody LoginUserRequestDto loginUserRequestDto,
             HttpServletRequest request
     ) {
         // 검증을 위한 서비스 호출

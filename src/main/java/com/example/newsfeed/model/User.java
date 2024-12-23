@@ -20,11 +20,9 @@ public class User extends BaseEntity {
     @Column(unique = true, length = 50, nullable = false)
     private String email;
 
-    @Setter
     @Column(length = 100, nullable = false)
     private String password;
 
-    @Setter
     @Column(length = 5, nullable = false)
     private String name;
 
@@ -38,7 +36,16 @@ public class User extends BaseEntity {
         this.name = name;
     }
 
+    // 편의 메소드
+    public void updateUserName(String name) {
+        this.name = name;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
     public void softDelete(){
-        deletedAt = LocalDateTime.now();
+        this.deletedAt = LocalDateTime.now();
     }
 }

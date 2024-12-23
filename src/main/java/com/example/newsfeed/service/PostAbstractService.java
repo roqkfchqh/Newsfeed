@@ -12,65 +12,71 @@ public abstract class PostAbstractService {
 
     //create
     public final PostResponseDto createPost(PostRequestDto dto, Long userId) {
-        userValidator(userId);
+        userValidatorForPost(userId);
         return executeCreatePost(dto, userId);
     }
 
     //get friends posts
     public final List<PostResponseDto> getPosts(Long userId, Sort sort) {
-        userValidator(userId);
+        userValidatorForPost(userId);
         return executeGetPosts(userId, sort);
     }
 
     //read
-    public final Map<PostResponseDto, List<PageCommentsResponseDto>> readPost(Long postId, Pageable pageable) {
-        postValidator(postId);
+    public final PostResponseDto readPost(Long postId, Pageable pageable) {
+        postValidatorForPost(postId);
         return executeReadPost(postId, pageable);
     }
 
     //update
     public final PostResponseDto updatePost(Long postId, PostRequestDto dto, Long userId) {
-        operationValidator(postId, userId);
-        userValidator(userId);
-        postValidator(postId);
+        authorityValidatorForPost(postId, userId);
+        userValidatorForPost(userId);
+        postValidatorForPost(postId);
         return executeUpdatePost(postId, dto, userId);
     }
 
     //softDelete
     public final void deletePost(Long postId, Long userId) {
-        operationValidator(postId, userId);
-        userValidator(userId);
-        postValidator(postId);
+        authorityValidatorForPost(postId, userId);
+        userValidatorForPost(userId);
+        postValidatorForPost(postId);
         executeDeletePost(postId);
     }
 
     //like
     public final void likePost(Long postId, Long userId) {
-        userValidator(userId);
-        postValidator(postId);
-        likeValidator(postId, userId);
+        userValidatorForPost(userId);
+        postValidatorForPost(postId);
+        operationValidatorForPost(postId, userId);
+        likeValidatorForPost(postId, userId);
         executeLikePost(postId, userId);
     }
 
     //dislike
     public final void dislikePost(Long postId, Long userId) {
-        userValidator(userId);
-        postValidator(postId);
-        dislikeValidator(postId, userId);
+        userValidatorForPost(userId);
+        postValidatorForPost(postId);
+        operationValidatorForPost(postId, userId);
+        dislikeValidatorForPost(postId, userId);
         executeDislikePost(postId, userId);
     }
 
     //validator
-    protected abstract void userValidator(Long userId);
-    protected abstract void postValidator(Long postId);
-    protected abstract void operationValidator(Long postId, Long userId);
-    protected abstract void likeValidator(Long postId, Long userId);
-    protected abstract void dislikeValidator(Long postId, Long userId);
+    protected abstract void userValidatorForPost(Long userId); //user 가 유효한지 검사
+    protected abstract void postValidatorForPost(Long postId); //post 가 유효한지 검사
+
+    protected abstract void authorityValidatorForPost(Long postId, Long userId);   //수정 등의 권한이 있는지 검사
+    protected abstract void operationValidatorForPost(Long postId, Long userId);   //본인 게시글에 좋아요 가능 여부 검사
+
+    protected abstract void likeValidatorForPost(Long postId, Long userId);    //like 이전, 이미 like 내역이 있는지 검사
+    protected abstract void dislikeValidatorForPost(Long postId, Long userId); //dislike 이전, 이미 like 내역이 있는지 검사
+
 
     //business logic
     protected abstract PostResponseDto executeCreatePost(PostRequestDto dto, Long userId);
     protected abstract List<PostResponseDto> executeGetPosts(Long userId, Sort sort);
-    protected abstract Map<PostResponseDto, List<PageCommentsResponseDto>> executeReadPost(Long postId, Pageable pageable);
+    protected abstract PostResponseDto executeReadPost(Long postId, Pageable pageable);
     protected abstract PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId);
     protected abstract void executeDeletePost(Long postId);
     protected abstract void executeLikePost(Long postId, Long userId);
