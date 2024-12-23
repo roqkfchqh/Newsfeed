@@ -1,20 +1,22 @@
 package com.example.newsfeed.dto.post;
 
+import com.example.newsfeed.dto.comment.CommentResponseDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
-@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostResponseDto {
 
     private String title;
 
     private String content;
+
+    private Long userId;
 
     private String username;
 
@@ -25,4 +27,8 @@ public class PostResponseDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime updatedAt;
+
+    private List<CommentResponseDto> comments;
+
+    private Integer commentCnt;
 }

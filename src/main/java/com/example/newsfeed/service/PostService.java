@@ -2,9 +2,9 @@ package com.example.newsfeed.service;
 
 import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
-import com.example.newsfeed.dto.post.ReadPageResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
+import com.example.newsfeed.mapper.PostMapper;
 import com.example.newsfeed.model.Post;
 import com.example.newsfeed.model.PostLike;
 import com.example.newsfeed.model.User;
@@ -25,8 +25,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class PostService extends PostAbstractService {
-
+public class PostService extends PostAbstractService{
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
@@ -36,10 +35,10 @@ public class PostService extends PostAbstractService {
     @Override
     protected PostResponseDto executeCreatePost(PostRequestDto dto, Long userId){
         User user = getUser(userId);
-        Post post = Post.create(dto.getTitle(), dto.getContent(), user);
+        Post post = PostMapper.fromPostRequestDto(dto.getTitle(), dto.getContent(), user);
 
         postRepository.save(post);
-        return post.toDto();
+        return PostMapper.toPostResponseDto(post);
     }
 
     //get friends posts
@@ -50,21 +49,21 @@ public class PostService extends PostAbstractService {
 
     //read
     @Override
-    public Map<PostResponseDto, List<ReadPageResponseDto>> executeReadPost(Long postId, Pageable pageable){
+    public Map<PostResponseDto, List<PageCommentsResponseDto>> executeReadPost(Long postId, Pageable pageable){
         Post post = getPost(postId);
-        Page<ReadPageResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable);
+        Page<PageCommentsResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable);
 
-        return Map.of(post.toDto(), comments.getContent());
+        return Map.of(post.toDto(), comments.getContent()); //수정해야됨 List로
     }
 
     //update
     @Override
-    @Transactional
+    @Transactional  //<트랜잭션의 과정과, 프록시, 1차 캐시>
     protected PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId){
         Post post = getPost(postId);
         post.update(dto.getTitle(), dto.getContent());
 
-        return post.toDto();
+        return PostMapper.toPostResponseDto(post);
     }
 
     //delete
@@ -90,6 +89,7 @@ public class PostService extends PostAbstractService {
     @Transactional
     public void executeDislikePost(Long postId, Long userId) {
         PostLike postLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
+
         postLikeRepository.delete(postLike);
 
         Post post = getPost(postId);

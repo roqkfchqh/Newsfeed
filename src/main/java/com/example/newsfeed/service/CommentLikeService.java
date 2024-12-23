@@ -11,6 +11,8 @@ import com.example.newsfeed.repository.CommentRepository;
 import com.example.newsfeed.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class CommentLikeService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public CommentResponseDto likeComment(Long userId, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
@@ -38,11 +41,12 @@ public class CommentLikeService {
 
         commentLikeRepository.save(like);
 
-        // 갱신된 댓글 정보 반환
-        Comment updatedComment = commentRepository.findById(commentId).get();
-        return CommentResponseDto.of(updatedComment);
+        comment.increaseLikeCount();
+
+        return CommentResponseDto.of(comment);
     }
 
+    @Transactional
     public CommentResponseDto unlikeComment(Long userId, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
@@ -52,8 +56,8 @@ public class CommentLikeService {
 
         commentLikeRepository.delete(like);
 
-        // 갱신된 댓글 정보 반환
-        Comment updatedComment = commentRepository.findById(commentId).get();
-        return CommentResponseDto.of(updatedComment);
+        comment.decreaseLikeCount();
+
+        return CommentResponseDto.of(comment);
     }
 }

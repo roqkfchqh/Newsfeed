@@ -2,7 +2,6 @@ package com.example.newsfeed.controller;
 
 import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
-import com.example.newsfeed.dto.post.ReadPageResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
 import com.example.newsfeed.service.PostService;
@@ -42,6 +41,7 @@ public class PostController {
     }
 
     //get friends posts
+    //dto로 따로 만들기 response
     @GetMapping
     public ResponseEntity<Map<String, Object>> getFriendPosts(
             HttpServletRequest request,
@@ -62,8 +62,9 @@ public class PostController {
     }
 
     //read
+    //dto로 따로 만들기 response
     @GetMapping("/{postId}")
-    public ResponseEntity<Map<PostResponseDto, List<ReadPageResponseDto>>> getPost(
+    public ResponseEntity<Map<PostResponseDto, List<PageCommentsResponseDto>>> getPost(
             @PathVariable Long postId,
             @RequestParam(defaultValue = PAGE_COUNT) int page,
             @RequestParam(defaultValue = PAGE_SIZE) int size){
@@ -86,7 +87,7 @@ public class PostController {
     }
 
     //like
-    @GetMapping("/{postId}/likes")
+    @PostMapping("/{postId}/likes")
     public ResponseEntity<String> likePost(
             HttpServletRequest req,
             @PathVariable Long postId){
@@ -111,7 +112,7 @@ public class PostController {
         return ResponseEntity.ok("좋아요가 삭제되었습니다.");
     }
 
-    //delete
+    //softDelete
     @DeleteMapping("/{postId}")
     public ResponseEntity<String> deletePost(
             HttpServletRequest req,

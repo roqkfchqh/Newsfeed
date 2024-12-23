@@ -2,7 +2,6 @@ package com.example.newsfeed.service;
 
 import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
-import com.example.newsfeed.dto.post.ReadPageResponseDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
@@ -24,7 +23,7 @@ public abstract class PostAbstractService {
     }
 
     //read
-    public final Map<PostResponseDto, List<ReadPageResponseDto>> readPost(Long postId, Pageable pageable) {
+    public final Map<PostResponseDto, List<PageCommentsResponseDto>> readPost(Long postId, Pageable pageable) {
         postValidator(postId);
         return executeReadPost(postId, pageable);
     }
@@ -37,7 +36,7 @@ public abstract class PostAbstractService {
         return executeUpdatePost(postId, dto, userId);
     }
 
-    //delete
+    //softDelete
     public final void deletePost(Long postId, Long userId) {
         operationValidator(postId, userId);
         userValidator(userId);
@@ -71,7 +70,7 @@ public abstract class PostAbstractService {
     //business logic
     protected abstract PostResponseDto executeCreatePost(PostRequestDto dto, Long userId);
     protected abstract List<PostResponseDto> executeGetPosts(Long userId, Sort sort);
-    protected abstract Map<PostResponseDto, List<ReadPageResponseDto>> executeReadPost(Long postId, Pageable pageable);
+    protected abstract Map<PostResponseDto, List<PageCommentsResponseDto>> executeReadPost(Long postId, Pageable pageable);
     protected abstract PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId);
     protected abstract void executeDeletePost(Long postId);
     protected abstract void executeLikePost(Long postId, Long userId);

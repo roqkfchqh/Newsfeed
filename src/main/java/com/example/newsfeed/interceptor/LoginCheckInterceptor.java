@@ -11,6 +11,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
+    //register를 auth로
     private final String[] uriWhiteList = {
             "/users", // 유저 가입
             "/auth/login", // 로그인, 로그아웃

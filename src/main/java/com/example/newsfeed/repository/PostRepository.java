@@ -14,7 +14,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     //hot-data (like_cnt >= 30)
     @Query("SELECT new com.example.newsfeed.dto.post.PostResponseDto( " +
             "CASE WHEN p.like_cnt >= 30 THEN CONCAT('🔥 ', p.title) ELSE p.title END, " +
-            "p.content, u.name, p.like_cnt, p.createdAt, p.updatedAt) " +
+            "p.content, u.id, u.name, p.like_cnt, p.createdAt, p.updatedAt) " +
             "FROM Post p " +
             "JOIN p.user u " +
             "WHERE u.id IN (SELECT f.followee.id FROM Friend f WHERE f.follower.id = :userId AND f.follow = true)")

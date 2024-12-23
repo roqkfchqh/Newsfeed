@@ -12,6 +12,8 @@ import com.example.newsfeed.repository.PostRepository;
 import com.example.newsfeed.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public CommentResponseDto createComment(Long userId, CommentRequestDto requestDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -41,6 +44,7 @@ public class CommentService {
         return CommentResponseDto.of(savedComment);
     }
 
+    @Transactional
     public CommentResponseDto updateComment(Long userId, Long commentId, CommentRequestDto requestDto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
@@ -54,12 +58,14 @@ public class CommentService {
         return CommentResponseDto.of(updatedComment);
     }
 
+    @Transactional(readOnly = true)
     public CommentResponseDto getComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         return CommentResponseDto.of(comment);
     }
 
+    @Transactional(readOnly = true)
     public List<CommentResponseDto> getAllComments() {
         List<Comment> comments = commentRepository.findAll();
         return comments.stream()
@@ -67,7 +73,7 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-
+    @Transactional
     public void deleteComment(Long userId, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
