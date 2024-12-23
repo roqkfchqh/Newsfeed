@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class PostService extends PostAbstractService {
         Post post = Post.create(dto.getTitle(), dto.getContent(), user);
 
         postRepository.save(post);
-        return post.toDto(getUsername(userId));
+        return post.toDto();
     }
 
     //get friends posts
@@ -53,8 +54,7 @@ public class PostService extends PostAbstractService {
         Post post = getPost(postId);
         Page<ReadPageResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable);
 
-        PostResponseDto result = post.toDto(getUsername(post.getUser().getId()));
-        return Map.of(result, comments.getContent());
+        return Map.of(post.toDto(), comments.getContent());
     }
 
     //update
@@ -64,7 +64,7 @@ public class PostService extends PostAbstractService {
         Post post = getPost(postId);
         post.update(dto.getTitle(), dto.getContent());
 
-        return post.toDto(getUsername(userId));
+        return post.toDto();
     }
 
     //delete
@@ -119,6 +119,14 @@ public class PostService extends PostAbstractService {
     }
 
     @Override
+    protected void operationValidator(Long postId, Long userId){
+        Post post = getPost(postId);
+        if(!Objects.equals(post.getId(), userId)){
+            throw new CustomException(ErrorCode.FORBIDDEN_OPERATION);
+        }
+    }
+
+    @Override
     protected void likeValidator(Long postId, Long userId){
         if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
@@ -144,9 +152,5 @@ public class PostService extends PostAbstractService {
     private User getUser(Long userId){
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
-
-    private String getUsername(Long userId) {
-        return userRepository.findNameById(userId);
     }
 }
