@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +54,7 @@ public class PostService extends PostAbstractService {
         Post post = getPost(postId);
         Page<ReadPageResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable);
 
-        PostResponseDto result = post.toDto();
-        return Map.of(result, comments.getContent());
+        return Map.of(post.toDto(), comments.getContent());
     }
 
     //update
@@ -116,6 +116,14 @@ public class PostService extends PostAbstractService {
         }
         postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CONTENT_NOT_FOUND));
+    }
+
+    @Override
+    protected void operationValidator(Long postId, Long userId){
+        Post post = getPost(postId);
+        if(!Objects.equals(post.getId(), userId)){
+            throw new CustomException(ErrorCode.FORBIDDEN_OPERATION);
+        }
     }
 
     @Override

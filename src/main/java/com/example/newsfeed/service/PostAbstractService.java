@@ -31,6 +31,7 @@ public abstract class PostAbstractService {
 
     //update
     public final PostResponseDto updatePost(Long postId, PostRequestDto dto, Long userId) {
+        operationValidator(postId, userId);
         userValidator(userId);
         postValidator(postId);
         return executeUpdatePost(postId, dto, userId);
@@ -38,6 +39,7 @@ public abstract class PostAbstractService {
 
     //delete
     public final void deletePost(Long postId, Long userId) {
+        operationValidator(postId, userId);
         userValidator(userId);
         postValidator(postId);
         executeDeletePost(postId);
@@ -62,6 +64,7 @@ public abstract class PostAbstractService {
     //validator
     protected abstract void userValidator(Long userId);
     protected abstract void postValidator(Long postId);
+    protected abstract void operationValidator(Long postId, Long userId);
     protected abstract void likeValidator(Long postId, Long userId);
     protected abstract void dislikeValidator(Long postId, Long userId);
 
