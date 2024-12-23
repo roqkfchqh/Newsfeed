@@ -19,4 +19,15 @@ public class PostLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    public static PostLike of(Post post, User user) {
+        return new PostLike(
+                post, user
+        );
+    }
+
+    private PostLike(Post post, User user) {
+        this.post = post;
+        this.user = user;
+    }
 }

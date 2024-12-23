@@ -1,9 +1,8 @@
 package com.example.newsfeed.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.example.newsfeed.dto.auth.LoginUserRequestDto;
 
-@Service
-@RequiredArgsConstructor
-public class AuthService {
+public interface AuthService {
+
+    Long login(LoginUserRequestDto loginUserRequestDto);
 }

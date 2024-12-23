@@ -1,30 +1,51 @@
 package com.example.newsfeed.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Entity
-@NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 @Getter
+@EntityListeners(AuditingEntityListener.class)
+@Entity
 @Table(name = "users")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE user_id = ?")
 public class User extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
-    @Email
+    @Column(unique = true, length = 50, nullable = false)
     private String email;
 
+    @Setter
+    @Column(length = 100, nullable = false)
     private String password;
 
+    @Setter
+    @Column(length = 5, nullable = false)
+    private String name;
+
+    @Column
     private LocalDateTime deletedAt;
 
-    private String name;
+    // 유저가 팔로우
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "follower")
+    private List<Friend> followerList;
+
+    // 유저를 팔로우
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "followee")
+    private List<Friend> followeeList;
+
+    @Builder
+    public User(String email, String password, String name) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+    }
 }
