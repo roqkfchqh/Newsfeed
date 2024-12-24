@@ -37,6 +37,7 @@ public class User extends BaseEntity {
         this.name = name;
     }
 
+
     // 편의 메소드
     public void updateUserName(String name) {
         this.name = name;
