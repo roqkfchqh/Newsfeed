@@ -9,13 +9,14 @@ import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.CommentLikeRepository;
 import com.example.newsfeed.repository.CommentRepository;
 import com.example.newsfeed.repository.UserRepository;
+import com.example.newsfeed.service.validate_template.CommentLikeAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CommentLikeService extends AbstractCommentLikeService {
+public class CommentLikeService extends CommentLikeAbstractService {
 
     private final CommentLikeRepository commentLikeRepository;
     private final CommentRepository commentRepository;

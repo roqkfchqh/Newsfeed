@@ -1,11 +1,11 @@
-package com.example.newsfeed.service;
+package com.example.newsfeed.service.validate_template;
 
 import com.example.newsfeed.dto.comment.CommentRequestDto;
 import com.example.newsfeed.dto.comment.CommentResponseDto;
 
 import java.util.List;
 
-public abstract class AbstractCommentService {
+public abstract class CommentAbstractService {
 
     public final CommentResponseDto createComment(Long userId, CommentRequestDto requestDto) {
         validateUser(userId);
@@ -34,6 +34,11 @@ public abstract class AbstractCommentService {
         executeDeleteComment(commentId);
     }
 
+    // Validation methods
+    protected abstract void validateUser(Long userId);
+    protected abstract void validatePost(Long postId);
+    protected abstract void validateComment(Long commentId);
+    protected abstract void validateUserOwnership(Long userId, Long commentId);
 
     // Execution methods
     protected abstract CommentResponseDto executeCreateComment(Long userId, CommentRequestDto requestDto);
@@ -42,10 +47,6 @@ public abstract class AbstractCommentService {
     protected abstract List<CommentResponseDto> executeGetAllComments();
     protected abstract void executeDeleteComment(Long commentId);
 
-    // Validation methods
-    protected abstract void validateUser(Long userId);
-    protected abstract void validatePost(Long postId);
-    protected abstract void validateComment(Long commentId);
-    protected abstract void validateUserOwnership(Long userId, Long commentId);
+
 }
 

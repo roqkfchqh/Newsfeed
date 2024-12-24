@@ -1,11 +1,11 @@
 package com.example.newsfeed.service;
 
-import com.example.newsfeed.dto.friend.FriendRequestDto;
 import com.example.newsfeed.dto.friend.FriendResponseDto;
 import com.example.newsfeed.model.Friend;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.FriendRepository;
 import com.example.newsfeed.repository.UserRepository;
+import com.example.newsfeed.service.validate_template.FriendAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class FriendService extends FriendAbstractService{
+public class FriendService extends FriendAbstractService {
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;

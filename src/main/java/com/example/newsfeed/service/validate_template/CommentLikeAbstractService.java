@@ -1,6 +1,6 @@
-package com.example.newsfeed.service;
+package com.example.newsfeed.service.validate_template;
 
-public abstract class AbstractCommentLikeService {
+public abstract class CommentLikeAbstractService {
 
     public final void likeComment(Long userId, Long commentId) {
         validateUser(userId);

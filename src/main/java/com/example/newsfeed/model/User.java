@@ -1,5 +1,6 @@
 package com.example.newsfeed.model;
 
+import com.example.newsfeed.model.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

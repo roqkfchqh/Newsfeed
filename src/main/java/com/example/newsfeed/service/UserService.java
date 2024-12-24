@@ -7,6 +7,7 @@ import com.example.newsfeed.exception.ErrorCode;
 import com.example.newsfeed.mapper.UserMapper;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.UserRepository;
+import com.example.newsfeed.service.validate_template.UserAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

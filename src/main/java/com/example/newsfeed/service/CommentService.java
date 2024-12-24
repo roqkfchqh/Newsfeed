@@ -11,6 +11,7 @@ import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.CommentRepository;
 import com.example.newsfeed.repository.PostRepository;
 import com.example.newsfeed.repository.UserRepository;
+import com.example.newsfeed.service.validate_template.CommentAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CommentService extends AbstractCommentService {
+public class CommentService extends CommentAbstractService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;

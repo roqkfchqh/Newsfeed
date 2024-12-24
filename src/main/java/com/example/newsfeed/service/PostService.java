@@ -13,6 +13,7 @@ import com.example.newsfeed.repository.CommentRepository;
 import com.example.newsfeed.repository.PostLikeRepository;
 import com.example.newsfeed.repository.PostRepository;
 import com.example.newsfeed.repository.UserRepository;
+import com.example.newsfeed.service.validate_template.PostAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PostService extends PostAbstractService{
+public class PostService extends PostAbstractService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
@@ -104,7 +105,7 @@ public class PostService extends PostAbstractService{
     */
 
     @Override
-    protected void userValidatorForPost(Long userId){
+    protected void validateUser(Long userId){
         if(userId == null){
             throw new CustomException(ErrorCode.LOGIN_REQUIRED);
         }
@@ -113,7 +114,7 @@ public class PostService extends PostAbstractService{
     }
 
     @Override
-    protected void postValidatorForPost(Long postId){
+    protected void validatePost(Long postId){
         if(postId == null){
             throw new CustomException(ErrorCode.NOT_FOUND);
         }
@@ -122,7 +123,7 @@ public class PostService extends PostAbstractService{
     }
 
     @Override
-    protected void authorityValidatorForPost(Long postId, Long userId){
+    protected void validateAuthority(Long postId, Long userId){
         Post post = getPost(postId);
         if(!Objects.equals(post.getId(), userId)){
             throw new CustomException(ErrorCode.FORBIDDEN_OPERATION);
@@ -130,7 +131,7 @@ public class PostService extends PostAbstractService{
     }
 
     @Override
-    protected void operationValidatorForPost(Long postId, Long userId){
+    protected void validateOperation(Long postId, Long userId){
         Post post = getPost(postId);
         if(Objects.equals(post.getId(), userId)){
             throw new CustomException(ErrorCode.FORBIDDEN_OPERATION_LIKE);
@@ -138,14 +139,14 @@ public class PostService extends PostAbstractService{
     }
 
     @Override
-    protected void likeValidatorForPost(Long postId, Long userId){
+    protected void validateNotAlreadyLiked(Long postId, Long userId){
         if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
             throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
     }
 
     @Override
-    protected void dislikeValidatorForPost(Long postId, Long userId){
+    protected void validateLikeExists(Long postId, Long userId){
         if(!postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
             throw new CustomException(ErrorCode.NOT_LIKED);
         }

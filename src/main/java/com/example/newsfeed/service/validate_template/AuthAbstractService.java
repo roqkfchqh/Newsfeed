@@ -1,4 +1,4 @@
-package com.example.newsfeed.service;
+package com.example.newsfeed.service.validate_template;
 
 import com.example.newsfeed.dto.auth.LoginUserRequestDto;
 import com.example.newsfeed.dto.auth.SignupUserRequestDto;
