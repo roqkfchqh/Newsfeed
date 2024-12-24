@@ -7,11 +7,7 @@ import com.example.newsfeed.exception.ErrorCode;
 import java.util.List;
 
 public abstract class FriendAbstractService {
-    /*
-    채영 : validator 이름 userValidatorForFriend, friendValidatorForFriend 이런식으로 하시면 됩니다.
-     */
 
-    //요청
     public final FriendResponseDto createFriend(Long friendId, Long userId) {
         validateUser(userId);
         validateUser(friendId);
@@ -22,7 +18,6 @@ public abstract class FriendAbstractService {
         return executeCreateFriend(friendId, userId);
     }
 
-    //수락
     public final void acceptFriend(Long relationId, Long userId) {
         validateUser(userId);
         if(validateRelation(relationId)) {
@@ -32,7 +27,6 @@ public abstract class FriendAbstractService {
         executeAcceptFriend(relationId, userId);
     }
 
-    //거절
     public final void rejectFriend(Long relationId, Long userId) {
         validateUser(userId);
         if(validateRelation(relationId)) {

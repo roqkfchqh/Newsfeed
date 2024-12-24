@@ -21,21 +21,21 @@ public class UserService extends UserAbstractService {
 
     @Override
     @Transactional
-    public UpdateUserNameResponseDto executeUpdateUserName(Long userId, UpdateUserNameRequestDto updateUserReqDto) {
+    protected UpdateUserNameResponseDto executeUpdateUserName(Long userId, UpdateUserNameRequestDto updateUserReqDto) {
         User user = getUserById(userId);
         user.updateUserName(updateUserReqDto.getName());
         return UserMapper.toUpdateUserBaneResponseDto(user);
     }
 
     @Override
-    public FetchUserResponseDto executeFetchOneById(Long userId) {
+    protected FetchUserResponseDto executeFetchOneById(Long userId) {
         User user = getUserById(userId);
         return UserMapper.toFetchUserResponseDto(user);
     }
 
     @Override
     @Transactional
-    public void executeUpdateUserPassword(Long userId, UpdateUserPasswordRequestDto updateUserPasswordRequestDto) {
+    protected void executeUpdateUserPassword(Long userId, UpdateUserPasswordRequestDto updateUserPasswordRequestDto) {
         String updatedHashedPassword = encoder.encode(updateUserPasswordRequestDto.getUpdatePassword());
         User user = getUserById(userId);
         user.updatePassword(updatedHashedPassword);
@@ -43,14 +43,14 @@ public class UserService extends UserAbstractService {
 
     @Override
     @Transactional
-    public void executeSoftDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto) {
+    protected void executeSoftDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto) {
         User user = getUserById(userId);
         user.softDelete();
     }
 
     // validator
     @Override
-    public void validateUserPassword(Long userId, String currentPassword) {
+    protected void validateUserPassword(Long userId, String currentPassword) {
         String findHashedPassword = getUserById(userId).getPassword();
 
         if (!encoder.matches(currentPassword, findHashedPassword)) {
