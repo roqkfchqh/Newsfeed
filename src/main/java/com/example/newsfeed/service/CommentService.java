@@ -2,9 +2,9 @@ package com.example.newsfeed.service;
 
 import com.example.newsfeed.dto.comment.CommentRequestDto;
 import com.example.newsfeed.dto.comment.CommentResponseDto;
-import com.example.newsfeed.mapper.CommentMapper;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
+import com.example.newsfeed.mapper.CommentMapper;
 import com.example.newsfeed.model.Comment;
 import com.example.newsfeed.model.Post;
 import com.example.newsfeed.model.User;
@@ -15,7 +15,6 @@ import com.example.newsfeed.service.validate_template.CommentAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +33,7 @@ public class CommentService extends CommentAbstractService {
         User user = getUser(userId);
         Post post = getPost(requestDto);
 
-        Comment comment = CommentMapper.toEntity(user, post, requestDto.getContents());
+        Comment comment = CommentMapper.toEntity(user, post, requestDto.getContent());
 
         return CommentMapper.toDto(commentRepository.save(comment));
     }
@@ -43,7 +42,7 @@ public class CommentService extends CommentAbstractService {
     @Transactional
     protected CommentResponseDto executeUpdateComment(Long userId, Long commentId, CommentRequestDto requestDto) {
         Comment comment = getCommentById(commentId);
-        comment.updateContent(requestDto.getContents());
+        comment.updateContent(requestDto.getContent());
         return CommentMapper.toDto(commentRepository.save(comment));
     }
 
@@ -74,7 +73,7 @@ public class CommentService extends CommentAbstractService {
 
     @Override
     protected void validateUser(Long userId) {
-        if(userId == null) {
+        if (userId == null) {
             throw new CustomException(ErrorCode.LOGIN_REQUIRED);
         }
         if (!userRepository.existsById(userId)) {
@@ -84,7 +83,7 @@ public class CommentService extends CommentAbstractService {
 
     @Override
     protected void validatePost(Long postId) {
-        if(postId == null) {
+        if (postId == null) {
             throw new CustomException(ErrorCode.NOT_FOUND);
         }
         if (!postRepository.existsById(postId)) {
@@ -94,7 +93,7 @@ public class CommentService extends CommentAbstractService {
 
     @Override
     protected void validateComment(Long commentId) {
-        if(commentId == null) {
+        if (commentId == null) {
             throw new CustomException(ErrorCode.NOT_FOUND);
         }
         if (!commentRepository.existsById(commentId)) {
