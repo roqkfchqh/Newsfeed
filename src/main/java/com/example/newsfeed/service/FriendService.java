@@ -24,7 +24,7 @@ public class FriendService extends FriendAbstractService {
     private final UserRepository userRepository;
 
     @Override
-    public FriendResponseDto executeCreateFriend(Long friendId, Long userId){
+    protected FriendResponseDto executeCreateFriend(Long friendId, Long userId){
         User user = getUser(userId);
         User friend = getUser(friendId);
 
@@ -36,19 +36,19 @@ public class FriendService extends FriendAbstractService {
 
     @Transactional
     @Override
-    public void executeAcceptFriend(Long relationId, Long userId) {
+    protected void executeAcceptFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friend.acceptFollow();
     }
 
     @Override
-    public void executeRejectFriend(Long relationId, Long userId) {
+    protected void executeRejectFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friendRepository.delete(friend);
     }
 
     @Override
-    public List<FriendResponseDto> executeGetFollowers(Long userId){
+    protected List<FriendResponseDto> executeGetFollowers(Long userId){
         List<Friend> followers = friendRepository.findByFollower(userId);
         return followers.stream()
                 .map(FriendMapper::toDto)
@@ -56,7 +56,7 @@ public class FriendService extends FriendAbstractService {
     }
 
     @Override
-    public List<FriendResponseDto> executeGetFollowees(Long userId) {
+    protected List<FriendResponseDto> executeGetFollowees(Long userId) {
         List<Friend> followees = friendRepository.findByFollowee(userId); //
         return followees.stream()
                 .map(FriendMapper::toDto)
@@ -64,7 +64,7 @@ public class FriendService extends FriendAbstractService {
     }
 
     @Override
-    public List<FriendResponseDto> executeGetFriends(Long userId) {
+    protected List<FriendResponseDto> executeGetFriends(Long userId) {
         List<Friend> friends = friendRepository.findFriendsByUserId(userId);
         return friends.stream()
                 .map(FriendMapper::toDto)
@@ -72,7 +72,7 @@ public class FriendService extends FriendAbstractService {
     }
 
     @Override
-    public void executeDeleteFriend(Long relationId, Long userId) {
+    protected void executeDeleteFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friendRepository.delete(friend);
     }

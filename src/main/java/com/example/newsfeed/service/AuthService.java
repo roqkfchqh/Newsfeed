@@ -22,7 +22,7 @@ public class AuthService extends AuthAbstractService {
     private final Encoder encoder;
 
     @Override
-    public SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto) {
+    protected SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto) {
         User user = AuthMapper.fromSignupUserRequestDto(
                 signupUserRequestDto,
                 encoder.encode(signupUserRequestDto.getPassword())
@@ -32,13 +32,13 @@ public class AuthService extends AuthAbstractService {
     }
 
     @Override
-    public Long executeLogin(Long userId) {
+    protected Long executeLogin(Long userId) {
         return getNotDeletedUserById(userId).getId();
     }
 
     // validator
     @Override
-    public void validateExistUserEmail(String email) {
+    protected void validateExistUserEmail(String email) {
         Optional<User> checkUser = this.userRepository.findByEmail(email);
 
         if (checkUser.isPresent()) {
@@ -47,7 +47,7 @@ public class AuthService extends AuthAbstractService {
     }
 
     @Override
-    public void validateUserPassword(Long userId, String currentPassword) {
+    protected void validateUserPassword(Long userId, String currentPassword) {
         String findHashedPassword = getUserById(userId).getPassword();
 
         if (!encoder.matches(currentPassword, findHashedPassword)) {
@@ -56,7 +56,7 @@ public class AuthService extends AuthAbstractService {
     }
 
     @Override
-    public Long getUserIdByEmail(String email) {
+    protected Long getUserIdByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD));
 
