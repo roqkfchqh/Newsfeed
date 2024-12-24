@@ -1,14 +1,28 @@
 package com.example.newsfeed.repository;
 
 import com.example.newsfeed.model.Friend;
-import com.example.newsfeed.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface FriendRepository extends JpaRepository<Friend, Long> {
-    List<Friend> findByFollower(User follower);
-    List<Friend> findByFollowee(User followee);
 
-    boolean existsByFollowerAndFollowee(Long userId, User followee);
+    @Query("SELECT f FROM Friend f JOIN f.followee u WHERE u.deletedAt IS NULL AND f.followee.id = :userId AND f.follow = false")
+    List<Friend> findByFollower(@Param("userId") Long userId);
+
+    @Query("SELECT f FROM Friend f JOIN f.follower u WHERE u.deletedAt IS NULL AND f.follower.id = :userId AND f.follow = false")
+    List<Friend> findByFollowee(@Param("userId") Long userId);
+
+    @Query("SELECT f FROM Friend f JOIN f.follower u1 JOIN f.followee u2 WHERE u1.deletedAt IS NULL AND u2.deletedAt IS NULL AND f.follower.id = :userId AND f.follow = true")
+    List<Friend> findFriendsByUserId(@Param("userId") Long userId);
+
+    Boolean existsByFollowerIdAndFolloweeId(Long friendId, Long userId);
+
+    Boolean findFollowById(Long relationId);
+
+    Boolean findFollowByFollowerIdAndFolloweeId(Long friendId, Long userId);
 }
