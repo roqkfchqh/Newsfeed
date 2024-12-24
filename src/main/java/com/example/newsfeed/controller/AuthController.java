@@ -64,7 +64,7 @@ public class AuthController {
     ) {
         SessionUserUtils.invalidate(request);
 
-        AuthMessageResponseDto data = new AuthMessageResponseDto("로그인에 되었습니다.");
+        AuthMessageResponseDto data = new AuthMessageResponseDto("로그아웃 완료.");
 
         return ResponseEntity
                 .ok()

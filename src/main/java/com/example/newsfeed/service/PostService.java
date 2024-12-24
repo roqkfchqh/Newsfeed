@@ -125,7 +125,7 @@ public class PostService extends PostAbstractService {
     @Override
     protected void validateAuthority(Long postId, Long userId){
         Post post = getPost(postId);
-        if(!Objects.equals(post.getId(), userId)){
+        if(!Objects.equals(post.getUser().getId(), userId)){
             throw new CustomException(ErrorCode.FORBIDDEN_OPERATION);
         }
     }
@@ -133,7 +133,7 @@ public class PostService extends PostAbstractService {
     @Override
     protected void validateOperation(Long postId, Long userId){
         Post post = getPost(postId);
-        if(Objects.equals(post.getId(), userId)){
+        if(Objects.equals(post.getUser().getId(), userId)){
             throw new CustomException(ErrorCode.FORBIDDEN_OPERATION_LIKE);
         }
     }
@@ -157,7 +157,7 @@ public class PostService extends PostAbstractService {
      */
 
     private Post getPost(Long postId) {
-        return postRepository.findById(postId)
+        return postRepository.findPostWithUser(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CONTENT_NOT_FOUND));
     }
 
