@@ -59,7 +59,7 @@ public class UserService extends UserAbstractService {
     }
 
     private User getUserById(Long userId) {
-        return userRepository.findById(userId)
+        return userRepository.findActiveUserById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }

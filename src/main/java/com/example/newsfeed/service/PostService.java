@@ -92,7 +92,7 @@ public class PostService extends PostAbstractService {
     @Override
     @Transactional
     protected void executeDislikePost(Long postId, Long userId) {
-        PostLike postLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
+        PostLike postLike = getPostLike(postId, userId);
 
         postLikeRepository.delete(postLike);
 
@@ -164,5 +164,10 @@ public class PostService extends PostAbstractService {
     private User getUser(Long userId){
         return userRepository.findActiveUserById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private PostLike getPostLike(Long postId, Long userId) {
+        return postLikeRepository.findByPostIdAndUserId(postId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
     }
 }

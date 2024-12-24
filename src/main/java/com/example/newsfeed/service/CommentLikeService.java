@@ -65,14 +65,14 @@ public class CommentLikeService extends CommentLikeAbstractService {
     @Override
     protected void validateNotAlreadyLiked(Long userId, Long commentId) {
         if (commentLikeRepository.findByUserIdAndCommentId(userId, commentId).isPresent()) {
-            throw new IllegalArgumentException("Already liked this comment");
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
         }
     }
 
     @Override
     protected void validateLikeExists(Long userId, Long commentId) {
         if (commentLikeRepository.findByUserIdAndCommentId(userId, commentId).isEmpty()) {
-            throw new IllegalArgumentException("Like not found");
+            throw new CustomException(ErrorCode.LIKE_NOT_FOUND);
         }
     }
 
@@ -81,7 +81,7 @@ public class CommentLikeService extends CommentLikeAbstractService {
      */
 
     private User getUser(Long userId) {
-        return userRepository.findById(userId)
+        return userRepository.findActiveUserById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
@@ -92,6 +92,6 @@ public class CommentLikeService extends CommentLikeAbstractService {
 
     private CommentLike getCommentLike(Long userId, Long commentId) {
         return commentLikeRepository.findByUserIdAndCommentId(userId, commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Like not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
     }
 }

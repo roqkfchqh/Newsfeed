@@ -115,7 +115,7 @@ public class CommentService extends CommentAbstractService {
      */
 
     private User getUser(Long userId) {
-        return userRepository.findById(userId)
+        return userRepository.findActiveUserById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 

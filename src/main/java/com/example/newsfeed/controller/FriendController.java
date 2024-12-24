@@ -1,13 +1,10 @@
 package com.example.newsfeed.controller;
 
-import com.example.newsfeed.dto.friend.FriendRequestDto;
 import com.example.newsfeed.dto.friend.FriendResponseDto;
 import com.example.newsfeed.service.FriendService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,13 +24,13 @@ public class FriendController {
     //create POST /friends
     //request: followee
     //response: status, followee
-    @PostMapping
+    @PostMapping("/{friendId}")
     public ResponseEntity<FriendResponseDto> createFriend(
-            @RequestBody @Valid FriendRequestDto requestDto,
+            @PathVariable("friendId") Long friendId,
             HttpServletRequest request
     ) {
         Long userId = getUserId(request);
-        return ResponseEntity.ok(friendService.createFriend(requestDto, userId));
+        return ResponseEntity.ok(friendService.createFriend(friendId, userId));
     }
 
     //session required
@@ -41,24 +38,24 @@ public class FriendController {
     //response: status, follower, followee
     //friendId/accept , friendId/reject
     //친구 승낙
-    @PatchMapping("/{friendId}/accept")
+    @PatchMapping("/{relationId}/accept")
     public ResponseEntity<String> acceptFriend(
-            @PathVariable("friendId") Long friendId,
+            @PathVariable("relationId") Long relationId,
             @RequestBody HttpServletRequest request
     ) {
         Long userId = getUserId(request);
-        friendService.acceptFriend(friendId, userId);
+        friendService.acceptFriend(relationId, userId);
         return ResponseEntity.ok("친구 요청을 수락했습니다.");
     }
 
     //친구 거절
-    @DeleteMapping("/{friendId}/reject")
+    @DeleteMapping("/{relationId}/reject")
     public ResponseEntity<String> rejectFriend(
-            @PathVariable("friendId") long friendId,
+            @PathVariable("relationId") Long relationId,
             HttpServletRequest request
     ){
         Long userId = getUserId(request);
-        friendService.rejectFriend(friendId, userId);
+        friendService.rejectFriend(relationId, userId);
         return ResponseEntity.ok("친구 요청을 거절했습니다.");
     }
 
@@ -98,13 +95,13 @@ public class FriendController {
     //session required
     //softDelete DELETE /friends/{friendId}
     //response: 삭제 성공 메세지
-    @DeleteMapping("/{friendId}")
+    @DeleteMapping("/{relationId}")
     public ResponseEntity<String> deleteFriend(
-            @PathVariable Long friendId,
+            @PathVariable Long relationId,
             HttpServletRequest request
     ) {
         Long userId = getUserId(request);
-        friendService.deleteFriend(friendId, userId);
+        friendService.deleteFriend(relationId, userId);
         return ResponseEntity.ok("친구 관계가 삭제되었습니다.");
     }
 

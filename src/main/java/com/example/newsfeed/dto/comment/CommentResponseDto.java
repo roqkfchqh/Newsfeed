@@ -1,9 +1,10 @@
 package com.example.newsfeed.dto.comment;
 
-import com.example.newsfeed.model.Comment;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-@Getter
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentResponseDto {
     private final Long id;
     private final Long postId;
@@ -11,15 +12,4 @@ public class CommentResponseDto {
     private final String username;
     private final String content;
     private final Integer likeCount;
-
-    @Builder
-    public CommentResponseDto(Long id, Long postId, Long userId, String username, String content, Integer likeCount) {
-        this.id = id;
-        this.postId = postId;
-        this.userId = userId;
-        this.username = username;
-        this.content = content;
-        this.likeCount = likeCount;
-    }
-
 }

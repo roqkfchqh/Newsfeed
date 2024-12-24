@@ -1,6 +1,5 @@
 package com.example.newsfeed.service.validate_template;
 
-import com.example.newsfeed.dto.friend.FriendRequestDto;
 import com.example.newsfeed.dto.friend.FriendResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
@@ -13,52 +12,58 @@ public abstract class FriendAbstractService {
      */
 
     //요청
-    public final FriendResponseDto createFriend(FriendRequestDto requestDto, Long userId) {
+    public final FriendResponseDto createFriend(Long friendId, Long userId) {
         validateUser(userId);
-        validateFriend(requestDto.getFolloweeId());
-        return executeCreateFriend(requestDto.getFolloweeId(), userId);
+        validateUser(friendId);
+        if(validateRelation(friendId, userId)) {
+            throw new CustomException(ErrorCode.ALREADY_FRIEND);
+        }
+        validateFollowExists(friendId, userId);
+        return executeCreateFriend(friendId, userId);
     }
 
     //수락
-    public final FriendResponseDto acceptFriend(FriendRequestDto requestDto, Long userId) {
+    public final void acceptFriend(Long relationId, Long userId) {
         validateUser(userId);
-        validateFriend(requestDto.getFolloweeId());
-        if(validateRelation(requestDto.getFolloweeId(), userId)) {    //true ( 이미 친구)
-            throw new CustomException(ErrorCode.ALREADY_LIKED); //이따 바꿀거임
+        if(validateRelation(relationId)) {
+            throw new CustomException(ErrorCode.ALREADY_FRIEND);
         }
-        validateAuthority(requestDto.getFolloweeId(), userId);
-        return executeAcceptFriend(requestDto.getFolloweeId(), userId);
+        validateAuthority(relationId, userId);
+        executeAcceptFriend(relationId, userId);
     }
 
     //거절
-    public final FriendResponseDto rejectFriend(FriendRequestDto requestDto, Long userId) {
+    public final void rejectFriend(Long relationId, Long userId) {
         validateUser(userId);
-        validateFriend(requestDto.getFolloweeId());
-        if(validateRelation(requestDto.getFolloweeId(), userId)) {
-            throw new CustomException(ErrorCode.ALREADY_LIKED); //이따 바꿀거임
+        if(validateRelation(relationId)) {
+            throw new CustomException(ErrorCode.ALREADY_FRIEND);
         }
-        validateAuthority(requestDto.getFolloweeId(), userId);
-        return executeRejectFriend(requestDto.getFolloweeId(), userId);
+        validateAuthority(relationId, userId);
+        executeRejectFriend(relationId, userId);
     }
 
     public final List<FriendResponseDto> getFollowers(Long userId) {
         validateUser(userId);
-        return null;
+        return executeGetFollowers(userId);
     }
 
     public final List<FriendResponseDto> getFollowees(Long userId) {
         validateUser(userId);
-        return null;
+        return executeGetFollowees(userId);
     }
 
     public final List<FriendResponseDto> getFriends(Long userId) {
         validateUser(userId);
-        return null;
+        return executeGetFriends(userId);
     }
 
-    public void deleteFriend(Long friendId, Long userId) {
+    public void deleteFriend(Long relationId, Long userId) {
         validateUser(userId);
-        validateFriend(friendId);
+        if(!validateRelation(relationId) || validateRelation(relationId) == null) {
+            throw new CustomException(ErrorCode.ALREADY_NOT_FRIEND);
+        }
+        validateDelete(relationId, userId);
+        executeDeleteFriend(relationId, userId);
     }
 
     /*
@@ -66,19 +71,21 @@ public abstract class FriendAbstractService {
      */
 
     protected abstract void validateUser(Long userId);    //유저검증
-    protected abstract void validateFriend(Long friendId);    //상대방검증
-
-    protected abstract Boolean validateRelation(Long friendId, Long userId); //관계 검증(true = 친구 false = 팔로잉 팔로워 관계)
-    protected abstract void validateAuthority(Long friendId, Long userId);    //권한 확인
+    protected abstract Boolean validateRelation(Long friendId, Long userId);
+    protected abstract Boolean validateRelation(Long relationId); //관계 검증(true = 친구 false = 팔로잉 팔로워 관계)
+    protected abstract void validateFollowExists(Long friendId, Long userId);
+    protected abstract void validateAuthority(Long relationId, Long userId);    //수락 / 거절권한 확인
+    protected abstract void validateDelete(Long relationId, Long userId);   //삭제권한 확인
 
     /*
     business logic
      */
 
     protected abstract FriendResponseDto executeCreateFriend(Long friendId, Long userId);
-    protected abstract FriendResponseDto executeAcceptFriend(Long friendId, Long userId);
-    protected abstract FriendResponseDto executeRejectFriend(Long friendId, Long userId);
-
-
-
+    protected abstract void executeAcceptFriend(Long relationId, Long userId);
+    protected abstract void executeRejectFriend(Long relationId, Long userId);
+    protected abstract List<FriendResponseDto> executeGetFollowers(Long userId);
+    protected abstract List<FriendResponseDto> executeGetFollowees(Long userId);
+    protected abstract List<FriendResponseDto> executeGetFriends(Long userId);
+    protected abstract void executeDeleteFriend(Long relationId, Long userId);
 }

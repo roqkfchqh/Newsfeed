@@ -23,12 +23,12 @@ public class AuthService extends AuthAbstractService {
 
     @Override
     public SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto) {
-        User user = AuthMapper.toEntity(
+        User user = AuthMapper.fromSignupUserRequestDto(
                 signupUserRequestDto,
                 encoder.encode(signupUserRequestDto.getPassword())
         );
         User savedUser = this.userRepository.save(user);
-        return AuthMapper.toDto(savedUser);
+        return AuthMapper.toSignupUserResponseDto(savedUser);
     }
 
     @Override
@@ -36,10 +36,7 @@ public class AuthService extends AuthAbstractService {
         return getUserById(userId).getId();
     }
 
-    /*
-    validator
-     */
-
+    // validator
     @Override
     public void validateExistUserEmail(String email) {
         Optional<User> checkUser = this.userRepository.findByEmail(email);
@@ -65,10 +62,6 @@ public class AuthService extends AuthAbstractService {
 
         return user.getId();
     }
-
-    /*
-    helper method
-     */
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
