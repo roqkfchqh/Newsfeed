@@ -33,7 +33,7 @@ public class AuthService extends AuthAbstractService {
 
     @Override
     public Long executeLogin(Long userId) {
-        return getUserById(userId).getId();
+        return getNotDeletedUserById(userId).getId();
     }
 
     // validator
@@ -65,6 +65,11 @@ public class AuthService extends AuthAbstractService {
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private User getNotDeletedUserById(Long userId) {
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }
