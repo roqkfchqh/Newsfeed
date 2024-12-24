@@ -10,14 +10,18 @@ public abstract class AuthAbstractService {
      * 로그인
      */
     public final Long login(LoginUserRequestDto loginUserRequestDto) {
-        return executeLogin(loginUserRequestDto);
+        Long userId = getUserIdByEmail(loginUserRequestDto.getEmail());
+        validateUserPassword(userId, loginUserRequestDto.getPassword());
+        return executeLogin(userId);
     }
 
+    // getter
+    protected abstract Long getUserIdByEmail(String email);
+
     // validator
-    protected abstract void validateUserEmail(String email);
     protected abstract void validateUserPassword(Long userId, String currentPassword);
 
     // business logic
-    protected abstract Long executeLogin(LoginUserRequestDto loginUserRequestDto);
+    protected abstract Long executeLogin(Long userId);
     protected abstract CreateUserResponseDto executeSignup(CreateUserRequestDto createUserRequestDto);
 }

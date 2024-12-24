@@ -2,7 +2,7 @@ package com.example.newsfeed.controller;
 
 import com.example.newsfeed.dto.BaseResponseDto;
 import com.example.newsfeed.dto.user.*;
-import com.example.newsfeed.service.UserServiceImpl;
+import com.example.newsfeed.service.UserService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     /**
      * 유저 생성(회원 가입)
@@ -38,7 +38,7 @@ public class UserController {
     public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> fetchUser(
             HttpServletRequest request
     ) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         FetchUserResponseDto data = this.userService.fetchOneById(userId);
 
         return ResponseEntity
@@ -54,7 +54,7 @@ public class UserController {
             @Valid @RequestBody UpdateUserNameRequestDto updateUserReqDto,
             HttpServletRequest request
     ) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         UpdateUserNameResponseDto data = this.userService.updateUserName(userId, updateUserReqDto);
 
         return ResponseEntity
@@ -70,7 +70,7 @@ public class UserController {
             @Valid @RequestBody UpdateUserPasswordRequestDto updateUserPasswordRequestDto,
             HttpServletRequest request
     ) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         this.userService.updateUserPassword(userId, updateUserPasswordRequestDto);
 
         return ResponseEntity
@@ -86,7 +86,7 @@ public class UserController {
             @Valid @RequestBody DeleteUserRequestDto deleteUserRequestDto,
             HttpServletRequest request
     ) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
 
         this.userService.deleteUser(userId, deleteUserRequestDto);
 
@@ -95,5 +95,12 @@ public class UserController {
         return ResponseEntity
                 .ok()
                 .body(new UserMessageResponseDto("사용자가 성공적으로 삭제되었습니다."));
+    }
+
+    /*
+    helper method
+     */
+    private static Long getUserId(HttpServletRequest request) {
+        return SessionUserUtils.getId(request);
     }
 }

@@ -32,9 +32,8 @@ public class FriendController {
             @RequestBody @Valid FriendRequestDto requestDto,
             HttpServletRequest request
     ) {
-        Long userId = SessionUserUtils.getId(request);
-        FriendResponseDto req = friendService.createFriend(requestDto, userId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(req);
+        Long userId = getUserId(request);
+        return ResponseEntity.ok(friendService.createFriend(requestDto, userId));
     }
 
     //session required
@@ -43,36 +42,33 @@ public class FriendController {
     //friendId/accept , friendId/reject
     //친구 승낙
     @PatchMapping("/{friendId}/accept")
-    public ResponseEntity<?> acceptFriend(
-            @PathVariable("friendId") long friendId,
-            @RequestBody String action,
+    public ResponseEntity<String> acceptFriend(
+            @PathVariable("friendId") Long friendId,
             @RequestBody HttpServletRequest request
     ) {
-        Long userId = SessionUserUtils.getId(request);
-        FriendResponseDto req = friendService.updateFriendStatus(friendId, action, userId);
-
-        if ("REJECT".equalsIgnoreCase(action)) {
-            return ResponseEntity.ok("팔로우 요청이 거절되었습니다.");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(req);
+        Long userId = getUserId(request);
+        friendService.acceptFriend(friendId, userId);
+        return ResponseEntity.ok("친구 요청을 수락했습니다.");
     }
 
     //친구 거절
     @DeleteMapping("/{friendId}/reject")
-    public ResponseEntity<?> rejectFriend(
-
+    public ResponseEntity<String> rejectFriend(
+            @PathVariable("friendId") long friendId,
+            HttpServletRequest request
     ){
-
-        return null;
+        Long userId = getUserId(request);
+        friendService.rejectFriend(friendId, userId);
+        return ResponseEntity.ok("친구 요청을 거절했습니다.");
     }
 
     //친구 목록 불러오기
     @GetMapping
     public ResponseEntity<List<FriendResponseDto>> getFriends(
-
+            HttpServletRequest request
     ){
-
-        return null;
+        Long userId = getUserId(request);
+        return ResponseEntity.ok(friendService.getFriends(userId));
     }
 
     //session required
@@ -83,9 +79,8 @@ public class FriendController {
     public ResponseEntity<List<FriendResponseDto>> getFollowers(
             HttpServletRequest request
     ) {
-        Long userId = SessionUserUtils.getId(request);
-        List<FriendResponseDto> followers = friendService.getFollowers(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(followers);
+        Long userId = getUserId(request);
+        return ResponseEntity.ok(friendService.getFollowers(userId));
     }
 
     //친구요청 받은 목록 불러오기
@@ -96,9 +91,8 @@ public class FriendController {
     public ResponseEntity<List<FriendResponseDto>> getFollowees(
             HttpServletRequest request
     ) {
-        Long userId = SessionUserUtils.getId(request);
-        List<FriendResponseDto> followees = friendService.getFollowees(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(followees);
+        Long userId = getUserId(request);
+        return ResponseEntity.ok(friendService.getFollowees(userId));
     }
 
     //session required
@@ -109,8 +103,15 @@ public class FriendController {
             @PathVariable Long friendId,
             HttpServletRequest request
     ) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         friendService.deleteFriend(friendId, userId);
-        return ResponseEntity.ok("언팔로우 성공");
+        return ResponseEntity.ok("친구 관계가 삭제되었습니다.");
+    }
+
+    /*
+    helper method
+     */
+    private static Long getUserId(HttpServletRequest request) {
+        return SessionUserUtils.getId(request);
     }
 }

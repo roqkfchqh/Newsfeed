@@ -1,12 +1,14 @@
 package com.example.newsfeed.dto.friend;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-@AllArgsConstructor
+@Builder
 public class FriendResponseDto {
 
     private Long id;
-    private Long followerId;    //string name, email
-    private Long followeeId;    //string name, email
-    private Boolean followed; // isFriend
+    private String followerName;
+    private Long followerId;
+    private String followeeName;
+    private Long followeeId;
+    private Boolean isFriend;
 }

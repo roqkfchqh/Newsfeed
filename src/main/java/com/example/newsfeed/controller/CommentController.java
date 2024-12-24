@@ -25,7 +25,7 @@ public class CommentController {
     public ResponseEntity<CommentResponseDto> createComment(
             @RequestBody CommentRequestDto requestDto,
             HttpServletRequest request) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         CommentResponseDto responseDto = commentService.createComment(userId, requestDto);
         return ResponseEntity.ok(responseDto);
     }
@@ -36,7 +36,7 @@ public class CommentController {
             @PathVariable Long commentId,
             @RequestBody CommentRequestDto requestDto,
             HttpServletRequest request) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         CommentResponseDto responseDto = commentService.updateComment(userId, commentId, requestDto);
         return ResponseEntity.ok(responseDto);
     }
@@ -62,7 +62,7 @@ public class CommentController {
     public ResponseEntity<String> likeComment(
             @PathVariable Long commentId,
             HttpServletRequest request) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         commentLikeService.likeComment(userId, commentId);
         return ResponseEntity.ok("Like added successfully");
     }
@@ -72,7 +72,7 @@ public class CommentController {
     public ResponseEntity<String> unlikeComment(
             @PathVariable Long commentId,
             HttpServletRequest request) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         commentLikeService.unlikeComment(userId, commentId);
         return ResponseEntity.ok("Like removed successfully");
     }
@@ -82,8 +82,15 @@ public class CommentController {
     public ResponseEntity<String> deleteComment(
             @PathVariable Long commentId,
             HttpServletRequest request) {
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         commentService.deleteComment(userId, commentId);
         return ResponseEntity.ok("Comment deleted successfully");
+    }
+
+    /*
+    helper method
+     */
+    private static Long getUserId(HttpServletRequest request) {
+        return SessionUserUtils.getId(request);
     }
 }

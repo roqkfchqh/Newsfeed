@@ -61,7 +61,7 @@ public class PostService extends PostAbstractService{
 
     //update
     @Override
-    @Transactional  //<트랜잭션의 과정과, 프록시, 1차 캐시>
+    @Transactional
     protected PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId){
         Post post = getPost(postId);
         post.update(dto.getTitle(), dto.getContent());

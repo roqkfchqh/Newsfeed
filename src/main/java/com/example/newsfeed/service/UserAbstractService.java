@@ -46,7 +46,6 @@ public abstract class UserAbstractService {
     protected abstract void validateUserEmail(String email);
     protected abstract void validateUserPassword(Long userId, String currentPassword);
 
-
     // business logic
     protected abstract CreateUserResponseDto executeCreateUser(CreateUserRequestDto createUserRequestDto);
     protected abstract UpdateUserNameResponseDto executeUpdateUserName(Long userId, UpdateUserNameRequestDto updateUserReqDto);

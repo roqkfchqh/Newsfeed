@@ -33,7 +33,7 @@ public class PostController {
             HttpServletRequest req,
             @Valid @RequestBody PostRequestDto dto){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         return ResponseEntity.ok(postService.createPost(dto, userId));
     }
@@ -45,7 +45,7 @@ public class PostController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction) {
 
-        Long userId = SessionUserUtils.getId(request);
+        Long userId = getUserId(request);
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
 
         List<PostResponseDto> posts = postService.getPosts(userId, sort);
@@ -72,7 +72,7 @@ public class PostController {
             @PathVariable Long postId,
             @Valid @RequestBody PostRequestDto dto){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         return ResponseEntity.ok(postService.updatePost(postId, dto, userId));
     }
@@ -83,7 +83,7 @@ public class PostController {
             HttpServletRequest req,
             @PathVariable Long postId){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         postService.likePost(postId, userId);
 
@@ -96,7 +96,7 @@ public class PostController {
             HttpServletRequest req,
             @PathVariable Long postId){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         postService.dislikePost(postId, userId);
 
@@ -109,7 +109,7 @@ public class PostController {
             HttpServletRequest req,
             @PathVariable Long postId){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         postService.deletePost(userId, postId);
 
@@ -122,5 +122,12 @@ public class PostController {
             throw new CustomException(ErrorCode.PAGING_ERROR);
         }
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+    }
+
+    /*
+    helper method
+     */
+    private static Long getUserId(HttpServletRequest req) {
+        return SessionUserUtils.getId(req);
     }
 }

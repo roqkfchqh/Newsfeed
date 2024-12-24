@@ -2,7 +2,6 @@ package com.example.newsfeed.service;
 
 import com.example.newsfeed.dto.friend.FriendRequestDto;
 import com.example.newsfeed.dto.friend.FriendResponseDto;
-import com.example.newsfeed.exception.BaseException;
 import com.example.newsfeed.model.Friend;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.FriendRepository;
@@ -16,16 +15,19 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class FriendService {
+public class FriendService extends FriendAbstractService{
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
 
     @Transactional
-    public FriendResponseDto createFriend(
-            FriendRequestDto requestDto,
-            User currentUser
-    ) throws BaseException {
+    @Override
+    public FriendResponseDto executeCreateFriend(
+            Long friendId,
+            Long userId
+    ){
+        //friend create(요청) 하는 부분이니까 일단 userid 받아서 validate -> 상대방도 validate -> 이미 친구관계에 등록되어있는지 validate -> create friend -> save
+
         User followee = userRepository.findById(requestDto.getFolloweeId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -40,43 +42,51 @@ public class FriendService {
     }
 
     @Transactional
-    public FriendResponseDto updateFriendStatus(Long friendId, String action, Long userId) {
+    public void acceptFriend(Long friendId, Long userId) {
+
+        //"내가 수락" 하는 부분 : action 은 controller 에서 검증 할 것
+        //update : user validate -> friend validate -> 요청이 존재하는지 확인 -> 요청 수락 / 거절 권한 확인 -> 요청 수락 -> return string
         Friend friend = friendRepository.findById(friendId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 요청입니다."));
 
         // 수락/거절 권한 확인
-        if (!friend.getFollowee().equals(currentUser)) {
+        if (!friend.getFollowee().getId().equals(userId)) {
             throw new RuntimeException("권한이 없습니다.");
         }
 
         // 요청 상태 업데이트
-        if ("ACCEPT".equalsIgnoreCase(action)) {
-            friend.acceptFollow(); // 요청 수락
-            return toResponseDto(friendRepository.save(friend));
-        } else if ("REJECT".equalsIgnoreCase(action)) {
-            friendRepository.delete(friend); // 요청 거절
-            return null; // 거절 시 응답 데이터 없음
-        } else {
-            throw new RuntimeException("유효하지 않은 동작입니다.");
-        }
+        friend.acceptFollow(); // 요청 수락
+        friendRepository.save(friend);
         //end Point를 두개를 두기
     }
 
-    //친구 관계를 팔로워랑 팔로잉 두개로 둘거냐
-    //아니면 양방향으로 둘거냐
+    public void rejectFriend(Long friendId, Long userId) {
 
-    //getfollowers -> 나에게 요청을 보낸 사람이라면, 친구요청 수락받는 창
-    //repository에서 folloeweeId = userId고, 친구관계가 존재하는데 false 인 사람만
-    public List<FriendResponseDto> getFollowers(User currentUser) {
+        //"내가 수락" 하는 부분 : action 은 controller 에서 검증 할 것
+        //update : user validate -> friend validate -> 요청이 존재하는지 확인 -> 요청 수락 / 거절 권한 확인 -> 요청 수락 -> return string
+        Friend friend = friendRepository.findById(friendId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 요청입니다."));
+
+        if (!friend.getFollowee().getId().equals(userId)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
+        friendRepository.delete(friend);
+    }
+
+    //getFollowers -> 나에게 요청을 보낸 사람이라면, 친구요청 수락받는 창
+    //repository 에서 followeeId = userId고, 친구관계가 존재하는데 false 인 사람만
+    //user validate -> 위의 내용 가져오기.
+    public List<FriendResponseDto> getFollowers(Long userId) {
 
         List<Friend> followers = friendRepository.findByFollower(currentUser);
-        return followers.stream()
-                .map(this::toResponseDto)
-                .collect(Collectors.toList());
+        return null;
     }
 
     //내가 친구 요청을 보낸 사람들
-    public List<FriendResponseDto> getFollowees(User currentUser) {
+    //repository 에서 followerId = userId고, 친구관계가 존재하는데 false 인 사람만
+    //user validate -> 위의 내용 가져오기.
+    public List<FriendResponseDto> getFollowees(Long userId) {
         List<Friend> followees = friendRepository.findByFollowee(currentUser);
         return followees.stream()
                 .map(this::toResponseDto)
@@ -85,9 +95,16 @@ public class FriendService {
 
     //친구들 목록
     //친구 관계가 존재하는데 true인 사람만 가져오는 기능.
+    //user validate -> 위의 내용 가져오기.
+    public List<FriendResponseDto> getFriends(Long userId) {
 
+        return null;
+    }
+
+
+    //user validate -> friend validate -> 원래 친구였는지 확인 -> 권한 있는지 확인 -> 삭제로직
     @Transactional
-    public void deleteFriend(Long friendId, User currentUser) {
+    public void deleteFriend(Long friendId, Long userId) {
         Friend friend = friendRepository.findById(friendId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 관계입니다."));
 
@@ -98,14 +115,12 @@ public class FriendService {
         friendRepository.delete(friend);
     }
 
-    private FriendResponseDto toResponseDto(Friend friend) {
-        return new FriendResponseDto(
-                friend.getId(),
-                friend.getFollower().getId(),
-                friend.getFollowee().getId(),
-                friend.getFollow()
-        );
-    }
+    /*
+    validator
+     */
 
-    // 예외처리, patch 엔드포인트 두개 두기, 중복 코드 관리.
+    /*
+    helper method
+     */
+
 }

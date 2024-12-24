@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder(access = AccessLevel.PRIVATE)
+@Builder
 public class UpdateUserNameResponseDto {
 
     private final String updatedName;
