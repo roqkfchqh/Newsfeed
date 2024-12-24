@@ -2,7 +2,6 @@ package com.example.newsfeed.controller;
 
 import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
-import com.example.newsfeed.dto.post.ReadPageResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
 import com.example.newsfeed.service.PostService;
@@ -16,9 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,34 +33,29 @@ public class PostController {
             HttpServletRequest req,
             @Valid @RequestBody PostRequestDto dto){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         return ResponseEntity.ok(postService.createPost(dto, userId));
     }
 
     //get friends posts
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getFriendPosts(
+    public ResponseEntity<List<PostResponseDto>> getFriendPosts(
             HttpServletRequest request,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction) {
 
-        Long userId = SessionUserUtils.getId(request);
-
+        Long userId = getUserId(request);
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
 
         List<PostResponseDto> posts = postService.getPosts(userId, sort);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("posts", posts);
-        response.put("count", posts.size());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(posts);
     }
 
     //read
     @GetMapping("/{postId}")
-    public ResponseEntity<Map<PostResponseDto, List<ReadPageResponseDto>>> getPost(
+    public ResponseEntity<PostResponseDto> getPost(
             @PathVariable Long postId,
             @RequestParam(defaultValue = PAGE_COUNT) int page,
             @RequestParam(defaultValue = PAGE_SIZE) int size){
@@ -80,22 +72,22 @@ public class PostController {
             @PathVariable Long postId,
             @Valid @RequestBody PostRequestDto dto){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         return ResponseEntity.ok(postService.updatePost(postId, dto, userId));
     }
 
     //like
-    @GetMapping("/{postId}/likes")
+    @PostMapping("/{postId}/likes")
     public ResponseEntity<String> likePost(
             HttpServletRequest req,
             @PathVariable Long postId){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         postService.likePost(postId, userId);
 
-        return ResponseEntity.ok("좋아요가 추가되었습니다.");
+        return ResponseEntity.ok("좋아요가 성공적으로 추가되었습니다.");
     }
 
     //dislike
@@ -104,20 +96,20 @@ public class PostController {
             HttpServletRequest req,
             @PathVariable Long postId){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         postService.dislikePost(postId, userId);
 
-        return ResponseEntity.ok("좋아요가 삭제되었습니다.");
+        return ResponseEntity.ok("좋아요가 성공적으로 삭제되었습니다.");
     }
 
-    //delete
+    //softDelete
     @DeleteMapping("/{postId}")
     public ResponseEntity<String> deletePost(
             HttpServletRequest req,
             @PathVariable Long postId){
 
-        Long userId = SessionUserUtils.getId(req);
+        Long userId = getUserId(req);
 
         postService.deletePost(userId, postId);
 
@@ -130,5 +122,12 @@ public class PostController {
             throw new CustomException(ErrorCode.PAGING_ERROR);
         }
         return PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+    }
+
+    /*
+    helper method
+     */
+    private static Long getUserId(HttpServletRequest req) {
+        return SessionUserUtils.getId(req);
     }
 }

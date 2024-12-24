@@ -1,13 +1,14 @@
 package com.example.newsfeed.model;
 
-import com.example.newsfeed.dto.post.PostResponseDto;
+import com.example.newsfeed.model.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Builder
+@AllArgsConstructor
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "posts")
 public class Post extends BaseEntity {
 
@@ -25,12 +26,6 @@ public class Post extends BaseEntity {
 
     private Integer like_cnt;
 
-    public static Post create(String title, String content, User user) {
-        return new Post(
-                title, content, user
-        );
-    }
-
     public void update(String title, String content){
         if(title != null){
             this.title = title;
@@ -46,22 +41,5 @@ public class Post extends BaseEntity {
 
     public void dislikeCnt(){
         this.like_cnt --;
-    }
-
-    public PostResponseDto toDto(String username) {
-        return PostResponseDto.builder()
-                .title(this.title)
-                .content(this.content)
-                .username(username)
-                .like_cnt(this.like_cnt)
-                .createdAt(this.getCreatedAt())
-                .updatedAt(this.getUpdatedAt())
-                .build();
-    }
-
-    private Post(String title, String content, User user) {
-        this.title = title;
-        this.content = content;
-        this.user = user;
     }
 }

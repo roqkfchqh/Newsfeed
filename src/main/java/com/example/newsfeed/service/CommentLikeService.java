@@ -1,6 +1,6 @@
 package com.example.newsfeed.service;
 
-import com.example.newsfeed.dto.comment.CommentResponseDto;
+import com.example.newsfeed.mapper.CommentMapper;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
 import com.example.newsfeed.model.Comment;
@@ -9,51 +9,89 @@ import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.CommentLikeRepository;
 import com.example.newsfeed.repository.CommentRepository;
 import com.example.newsfeed.repository.UserRepository;
+import com.example.newsfeed.service.validate_template.CommentLikeAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CommentLikeService {
+public class CommentLikeService extends CommentLikeAbstractService {
 
     private final CommentLikeRepository commentLikeRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
-    public CommentResponseDto likeComment(Long userId, Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+    @Override
+    @Transactional
+    protected void executeLikeComment(Long userId, Long commentId) {
+        Comment comment = getComment(commentId);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = getUser(userId);
 
-        if (commentLikeRepository.findByUserIdAndCommentId(userId, commentId).isPresent()) {
-            throw new IllegalArgumentException("Already liked this comment");
-        }
-
-        CommentLike like = CommentLike.builder()
-                .user(user)
-                .comment(comment)
-                .build();
+        CommentLike like = CommentMapper.toEntity(user, comment);
 
         commentLikeRepository.save(like);
 
-        // 갱신된 댓글 정보 반환
-        Comment updatedComment = commentRepository.findById(commentId).get();
-        return CommentResponseDto.of(updatedComment);
+        comment.increaseLikeCount();
     }
 
-    public CommentResponseDto unlikeComment(Long userId, Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+    @Override
+    @Transactional
+    protected void executeUnlikeComment(Long userId, Long commentId) {
+        Comment comment = getComment(commentId);
 
-        CommentLike like = commentLikeRepository.findByUserIdAndCommentId(userId, commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Like not found"));
+        CommentLike like = getCommentLike(userId, commentId);
 
         commentLikeRepository.delete(like);
 
-        // 갱신된 댓글 정보 반환
-        Comment updatedComment = commentRepository.findById(commentId).get();
-        return CommentResponseDto.of(updatedComment);
+        comment.decreaseLikeCount();
+    }
+
+    @Override
+    protected void validateUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+    }
+
+    @Override
+    protected void validateComment(Long commentId) {
+        if (!commentRepository.existsById(commentId)) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+    }
+
+    @Override
+    protected void validateNotAlreadyLiked(Long userId, Long commentId) {
+        if (commentLikeRepository.findByUserIdAndCommentId(userId, commentId).isPresent()) {
+            throw new CustomException(ErrorCode.ALREADY_LIKED);
+        }
+    }
+
+    @Override
+    protected void validateLikeExists(Long userId, Long commentId) {
+        if (commentLikeRepository.findByUserIdAndCommentId(userId, commentId).isEmpty()) {
+            throw new CustomException(ErrorCode.LIKE_NOT_FOUND);
+        }
+    }
+
+    /*
+    helper method
+     */
+
+    private User getUser(Long userId) {
+        return userRepository.findActiveUserById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private Comment getComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+    }
+
+    private CommentLike getCommentLike(Long userId, Long commentId) {
+        return commentLikeRepository.findByUserIdAndCommentId(userId, commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
     }
 }

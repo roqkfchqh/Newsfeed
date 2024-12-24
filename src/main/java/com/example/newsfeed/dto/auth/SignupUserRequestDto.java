@@ -9,7 +9,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class LoginUserRequestDto {
+public class SignupUserRequestDto {
+
+    @NotBlank
+    @Size(min = 1, max = 4)
+    private final String name;
 
     @NotBlank @Size(min = 5, max = 50)
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",

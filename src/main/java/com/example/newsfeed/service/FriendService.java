@@ -1,12 +1,14 @@
 package com.example.newsfeed.service;
 
-import com.example.newsfeed.dto.friend.FriendRequestDto;
 import com.example.newsfeed.dto.friend.FriendResponseDto;
-import com.example.newsfeed.exception.BaseException;
+import com.example.newsfeed.exception.CustomException;
+import com.example.newsfeed.exception.ErrorCode;
+import com.example.newsfeed.mapper.FriendMapper;
 import com.example.newsfeed.model.Friend;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.FriendRepository;
 import com.example.newsfeed.repository.UserRepository;
+import com.example.newsfeed.service.validate_template.FriendAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,84 +18,129 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class FriendService {
+public class FriendService extends FriendAbstractService {
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
 
-    @Transactional
-    public FriendResponseDto createFriend(
-            FriendRequestDto requestDto,
-            User currentUser
-    ) throws BaseException {
-        User followee = userRepository.findById(requestDto.getFolloweeId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Override
+    public FriendResponseDto executeCreateFriend(Long friendId, Long userId){
+        User user = getUser(userId);
+        User friend = getUser(friendId);
 
-        if (friendRepository.existsByFollowerAndFollowee(currentUser, followee)) {
-            throw new RuntimeException("이미 팔로우 요청을 보냈습니다.");
-        }
+        Friend relate = FriendMapper.toEntity(user, friend);
 
-        Friend friend = Friend.create(currentUser, followee);
-
-        Friend savedFriend = friendRepository.save(friend);
-        return toResponseDto(savedFriend);
+        Friend savedFriend = friendRepository.save(relate);
+        return FriendMapper.toDto(savedFriend);
     }
 
     @Transactional
-    public FriendResponseDto updateFriendStatus(Long friendId, String action, User currentUser) {
-        Friend friend = friendRepository.findById(friendId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 요청입니다."));
-
-        // 수락/거절 권한 확인
-        if (!friend.getFollowee().equals(currentUser)) {
-            throw new RuntimeException("권한이 없습니다.");
-        }
-
-        // 요청 상태 업데이트
-        if ("ACCEPT".equalsIgnoreCase(action)) {
-            friend.acceptFollow(); // 요청 수락
-            return toResponseDto(friendRepository.save(friend));
-        } else if ("REJECT".equalsIgnoreCase(action)) {
-            friendRepository.delete(friend); // 요청 거절
-            return null; // 거절 시 응답 데이터 없음
-        } else {
-            throw new RuntimeException("유효하지 않은 동작입니다.");
-        }
+    @Override
+    public void executeAcceptFriend(Long relationId, Long userId) {
+        Friend friend = getFriend(relationId);
+        friend.acceptFollow();
     }
 
-    public List<FriendResponseDto> getFollowers(User currentUser) {
-
-        List<Friend> followers = friendRepository.findByFollower(currentUser);
-        return followers.stream()
-                .map(this::toResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<FriendResponseDto> getFollowees(User currentUser) {
-        List<Friend> followees = friendRepository.findByFollowee(currentUser);
-        return followees.stream()
-                .map(this::toResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public void deleteFriend(Long friendId, User currentUser) {
-        Friend friend = friendRepository.findById(friendId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 관계입니다."));
-
-        if (!friend.getFollowee().equals(currentUser)) {
-            throw new RuntimeException("권한이 없습니다.");
-        }
-
+    @Override
+    public void executeRejectFriend(Long relationId, Long userId) {
+        Friend friend = getFriend(relationId);
         friendRepository.delete(friend);
     }
 
-    private FriendResponseDto toResponseDto(Friend friend) {
-        return new FriendResponseDto(
-                friend.getId(),
-                friend.getFollower().getId(),
-                friend.getFollowee().getId(),
-                friend.getFollow()
-        );
+    @Override
+    public List<FriendResponseDto> executeGetFollowers(Long userId){
+        List<Friend> followers = friendRepository.findByFollower(userId);
+        return followers.stream()
+                .map(FriendMapper::toDto)
+                .collect(Collectors.toList());
     }
+
+    @Override
+    public List<FriendResponseDto> executeGetFollowees(Long userId) {
+        List<Friend> followees = friendRepository.findByFollowee(userId); //
+        return followees.stream()
+                .map(FriendMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FriendResponseDto> executeGetFriends(Long userId) {
+        List<Friend> friends = friendRepository.findFriendsByUserId(userId);
+        return friends.stream()
+                .map(FriendMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void executeDeleteFriend(Long relationId, Long userId) {
+        Friend friend = getFriend(relationId);
+        friendRepository.delete(friend);
+    }
+
+    /*
+    validator
+     */
+
+    //유저 유효성 검증
+    @Override
+    protected void validateUser(Long userId){
+        if(userId == null){
+            throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        }
+        userRepository.findActiveUserById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    @Override
+    protected Boolean validateRelation(Long friendId, Long userId) {
+        return Boolean.TRUE.equals(friendRepository.findFollowByFollowerIdAndFolloweeId(friendId, userId));
+    }
+
+    //친구관계가 true 인지 false 인지
+    @Override
+    protected Boolean validateRelation(Long relationId) {
+        return friendRepository.findFollowById(relationId);
+    }
+
+    //이미 요청 중인 관계인지
+    @Override
+    protected void validateFollowExists(Long friendId, Long userId) {
+        if (friendRepository.existsByFollowerIdAndFolloweeId(friendId, userId)){
+            throw new CustomException(ErrorCode.ALREADY_FRIEND_REQUEST);
+        }
+    }
+
+    // 수락/거절 권한 확인(상대방이 나에게 팔로우를 건 것이 맞는지)
+    @Override
+    protected void validateAuthority(Long relationId, Long userId) {
+        Friend friend = getFriend(relationId);
+
+        if (!friend.getFollowee().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN_OPERATION);
+        }
+    }
+
+    @Override
+    protected void validateDelete(Long relationId, Long userId) {
+        Friend friend = getFriend(relationId);
+
+        if (!friend.getFollowee().getId().equals(userId) && !friend.getFollower().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN_OPERATION);
+        }
+    }
+
+    /*
+    helper method
+     */
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private Friend getFriend(Long friendId) {
+        return friendRepository.findById(friendId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
 }

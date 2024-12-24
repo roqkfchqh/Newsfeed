@@ -1,5 +1,6 @@
 package com.example.newsfeed.model;
 
+import com.example.newsfeed.model.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,4 +39,18 @@ public class Comment extends BaseEntity {
     public void updateContent(String content) {
         this.content = content;
     }
+
+    public void increaseLikeCount() {
+        if (this.like_cnt == null) {
+            this.like_cnt = 0;
+        }
+        this.like_cnt++;
+    }
+
+    public void decreaseLikeCount() {
+        if (this.like_cnt != null && this.like_cnt > 0) {
+            this.like_cnt--;
+        }
+    }
+
 }
