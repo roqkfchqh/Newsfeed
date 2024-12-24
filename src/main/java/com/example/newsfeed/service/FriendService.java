@@ -77,7 +77,7 @@ public class FriendService extends FriendAbstractService {
     //getFollowers -> 나에게 요청을 보낸 사람이라면, 친구요청 수락받는 창
     //repository 에서 followeeId = userId고, 친구관계가 존재하는데 false 인 사람만
     //user validate -> 위의 내용 가져오기.
-    public List<FriendResponseDto> getFollowers(Long userId) {
+    public List<FriendResponseDto> getFollowers(Long userId){
 
         List<Friend> followers = friendRepository.findByFollower(currentUser);
         return null;
