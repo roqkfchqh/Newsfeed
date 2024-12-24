@@ -5,13 +5,13 @@ import com.example.newsfeed.model.Friend;
 
 public class FriendMapper {
 
-    public static FriendResponseDto toFriendResponseDto(Friend friend) {
+    public static FriendResponseDto toDto(Friend friend) {
         return FriendResponseDto.builder()
 
                 .build();
     }
 
-    public static Friend fromFriendResponseDto(FriendResponseDto friendResponseDto) {
+    public static Friend toEntity(FriendResponseDto friendResponseDto) {
         return Friend.builder()
 
                 .build();

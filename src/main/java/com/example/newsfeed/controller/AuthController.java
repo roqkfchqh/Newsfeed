@@ -1,7 +1,10 @@
 package com.example.newsfeed.controller;
 
+import com.example.newsfeed.dto.BaseResponseDto;
 import com.example.newsfeed.dto.auth.AuthMessageResponseDto;
 import com.example.newsfeed.dto.auth.LoginUserRequestDto;
+import com.example.newsfeed.dto.auth.SignupUserRequestDto;
+import com.example.newsfeed.dto.auth.SignupUserResponseDto;
 import com.example.newsfeed.service.AuthService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,35 +24,50 @@ public class AuthController {
     private final AuthService authService;
 
     /**
-     * 로그인
+     * 유저 생성(회원 가입)
      */
-    @PostMapping("/login")
-    public ResponseEntity<AuthMessageResponseDto> login(
-            @Valid @RequestBody LoginUserRequestDto loginUserRequestDto,
-            HttpServletRequest request
+    @PostMapping("/signup")
+    public ResponseEntity<BaseResponseDto<SignupUserResponseDto>> signup(
+            @Valid @RequestBody SignupUserRequestDto signupUserRequestDto
     ) {
-        // 검증을 위한 서비스 호출
-        Long userId = this.authService.login(loginUserRequestDto);
-
-        // 세션 저장
-        SessionUserUtils.setId(userId, request);
+        SignupUserResponseDto data = authService.signup(signupUserRequestDto);
 
         return ResponseEntity
                 .ok()
-                .body(new AuthMessageResponseDto("로그인에 성공하였습니다."));
+                .body(new BaseResponseDto<>(data));
+    }
+
+    /**
+     * 로그인
+     */
+    @PostMapping("/login")
+    public ResponseEntity<BaseResponseDto<AuthMessageResponseDto>> login(
+            @RequestBody LoginUserRequestDto loginUserRequestDto,
+            HttpServletRequest request
+    ) {
+        Long userId = authService.login(loginUserRequestDto);
+        SessionUserUtils.setId(userId, request);
+
+        AuthMessageResponseDto data = new AuthMessageResponseDto("로그인에 성공하였습니다.");
+
+        return ResponseEntity
+                .ok()
+                .body(new BaseResponseDto<>(data));
     }
 
     /**
      * 로그아웃
      */
     @PostMapping("/logout")
-    public ResponseEntity<AuthMessageResponseDto> logout(
+    public ResponseEntity<BaseResponseDto<AuthMessageResponseDto>> logout(
             HttpServletRequest request
     ) {
-       SessionUserUtils.invalidate(request);
+        SessionUserUtils.invalidate(request);
+
+        AuthMessageResponseDto data = new AuthMessageResponseDto("로그인에 되었습니다.");
 
         return ResponseEntity
                 .ok()
-                .body(new AuthMessageResponseDto("로그아웃 되었습니다."));
+                .body(new BaseResponseDto<>(data));
     }
 }

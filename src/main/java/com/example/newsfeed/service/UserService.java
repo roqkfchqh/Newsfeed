@@ -11,22 +11,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class UserService extends UserAbstractService {
 
     private final UserRepository userRepository;
     private final Encoder encoder;
-
-    @Override
-    public CreateUserResponseDto executeCreateUser(CreateUserRequestDto createUserRequestDto) {
-        String hashedPassword = encoder.encode(createUserRequestDto.getPassword());
-        User user = UserMapper.fromCreateUserRequestDto(createUserRequestDto, hashedPassword);
-        User savedUser = this.userRepository.save(user);
-        return UserMapper.toCreateUserResponseDto(savedUser);
-    }
 
     @Override
     @Transactional
@@ -52,22 +42,12 @@ public class UserService extends UserAbstractService {
 
     @Override
     @Transactional
-    public void executeDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto) {
+    public void executeSoftDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto) {
         User user = getUserById(userId);
         user.softDelete();
     }
 
     // validator
-
-    @Override
-    public void validateUserEmail(String email) {
-        Optional<User> checkUser = this.userRepository.findByEmail(email);
-
-        if (checkUser.isPresent()) {
-            throw new CustomException(ErrorCode.ALREADY_USED_EMAIL);
-        }
-    }
-
     @Override
     public void validateUserPassword(Long userId, String currentPassword) {
         String findHashedPassword = getUserById(userId).getPassword();
@@ -76,8 +56,6 @@ public class UserService extends UserAbstractService {
             throw new CustomException(ErrorCode.WRONG_PASSWORD);
         }
     }
-
-    //
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)

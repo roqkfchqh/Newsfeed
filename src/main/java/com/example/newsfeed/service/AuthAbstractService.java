@@ -1,10 +1,19 @@
 package com.example.newsfeed.service;
 
 import com.example.newsfeed.dto.auth.LoginUserRequestDto;
-import com.example.newsfeed.dto.user.CreateUserRequestDto;
-import com.example.newsfeed.dto.user.CreateUserResponseDto;
+import com.example.newsfeed.dto.auth.SignupUserRequestDto;
+import com.example.newsfeed.dto.auth.SignupUserResponseDto;
 
 public abstract class AuthAbstractService {
+
+    // service logic
+    /**
+     * 유저 생성
+     */
+    public final SignupUserResponseDto signup(SignupUserRequestDto signupUserRequestDto) {
+        validateExistUserEmail(signupUserRequestDto.getEmail());
+        return executeSignup(signupUserRequestDto);
+    }
 
     /**
      * 로그인
@@ -19,9 +28,10 @@ public abstract class AuthAbstractService {
     protected abstract Long getUserIdByEmail(String email);
 
     // validator
+    protected abstract void validateExistUserEmail(String email);
     protected abstract void validateUserPassword(Long userId, String currentPassword);
 
     // business logic
+    protected abstract SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto);
     protected abstract Long executeLogin(Long userId);
-    protected abstract CreateUserResponseDto executeSignup(CreateUserRequestDto createUserRequestDto);
 }

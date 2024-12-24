@@ -28,14 +28,14 @@ public class FriendService extends FriendAbstractService{
     ){
         //friend create(요청) 하는 부분이니까 일단 userid 받아서 validate -> 상대방도 validate -> 이미 친구관계에 등록되어있는지 validate -> create friend -> save
 
-        User followee = userRepository.findById(requestDto.getFolloweeId())
+        User followee = userRepository.findById(friendId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (friendRepository.existsByFollowerAndFollowee(currentUser, followee)) {
+        if (friendRepository.existsByFollowerAndFollowee(userId, followee)) {
             throw new RuntimeException("이미 팔로우 요청을 보냈습니다.");
         }
 
-        Friend friend = Friend.create(currentUser, followee);
+        Friend friend = Friend.create(userId, followee);
 
         Friend savedFriend = friendRepository.save(friend);
         return toResponseDto(savedFriend);

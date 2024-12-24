@@ -35,10 +35,10 @@ public class PostService extends PostAbstractService{
     @Override
     protected PostResponseDto executeCreatePost(PostRequestDto dto, Long userId){
         User user = getUser(userId);
-        Post post = PostMapper.fromPostRequestDto(dto.getTitle(), dto.getContent(), user);
+        Post post = PostMapper.toEntity(dto.getTitle(), dto.getContent(), user);
 
         postRepository.save(post);
-        return PostMapper.toPostResponseDto(post);
+        return PostMapper.toDto(post);
     }
 
     //get friends posts
@@ -46,7 +46,7 @@ public class PostService extends PostAbstractService{
     protected List<PostResponseDto> executeGetPosts(Long userId, Sort sort){
         List<Post> posts = postRepository.findPostsByFriends(userId, sort);
         return posts.stream()
-                .map(PostMapper::toPostResponseDto)
+                .map(PostMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -56,7 +56,7 @@ public class PostService extends PostAbstractService{
         Post post = getPost(postId);
         List<CommentResponseDto> comments = commentRepository.findCommentsByPostId(postId, pageable).getContent();
 
-        return PostMapper.toPostResponseDto(post, comments);
+        return PostMapper.toDto(post, comments);
     }
 
     //update
@@ -66,7 +66,7 @@ public class PostService extends PostAbstractService{
         Post post = getPost(postId);
         post.update(dto.getTitle(), dto.getContent());
 
-        return PostMapper.toPostResponseDto(post);
+        return PostMapper.toDto(post);
     }
 
     //delete

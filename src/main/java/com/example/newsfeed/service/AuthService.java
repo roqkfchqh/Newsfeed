@@ -1,14 +1,17 @@
 package com.example.newsfeed.service;
 
 import com.example.newsfeed.bcrypt.Encoder;
-import com.example.newsfeed.dto.user.CreateUserRequestDto;
-import com.example.newsfeed.dto.user.CreateUserResponseDto;
+import com.example.newsfeed.dto.auth.SignupUserRequestDto;
+import com.example.newsfeed.dto.auth.SignupUserResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
+import com.example.newsfeed.mapper.AuthMapper;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,23 +21,33 @@ public class AuthService extends AuthAbstractService {
     private final Encoder encoder;
 
     @Override
+    public SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto) {
+        User user = AuthMapper.toEntity(
+                signupUserRequestDto,
+                encoder.encode(signupUserRequestDto.getPassword())
+        );
+        User savedUser = this.userRepository.save(user);
+        return AuthMapper.toDto(savedUser);
+    }
+
+    @Override
     public Long executeLogin(Long userId) {
         return getUserById(userId).getId();
     }
 
-    @Override
-    public CreateUserResponseDto executeSignup(CreateUserRequestDto createUserRequestDto) {
-        User user = User.builder()
-                .name(createUserRequestDto.getName())
-                .email(createUserRequestDto.getEmail())
-                .password(encoder.encode(createUserRequestDto.getPassword()))
-                .build();
+    /*
+    validator
+     */
 
-        User savedUser = userRepository.save(user);
-        return CreateUserResponseDto.of(savedUser);
+    @Override
+    public void validateExistUserEmail(String email) {
+        Optional<User> checkUser = this.userRepository.findByEmail(email);
+
+        if (checkUser.isPresent()) {
+            throw new CustomException(ErrorCode.ALREADY_USED_EMAIL);
+        }
     }
 
-    // validator
     @Override
     public void validateUserPassword(Long userId, String currentPassword) {
         String findHashedPassword = getUserById(userId).getPassword();
@@ -51,6 +64,10 @@ public class AuthService extends AuthAbstractService {
 
         return user.getId();
     }
+
+    /*
+    helper method
+     */
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)

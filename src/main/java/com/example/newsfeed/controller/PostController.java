@@ -87,7 +87,7 @@ public class PostController {
 
         postService.likePost(postId, userId);
 
-        return ResponseEntity.ok("좋아요가 추가되었습니다.");
+        return ResponseEntity.ok("좋아요가 성공적으로 추가되었습니다.");
     }
 
     //dislike
@@ -100,7 +100,7 @@ public class PostController {
 
         postService.dislikePost(postId, userId);
 
-        return ResponseEntity.ok("좋아요가 삭제되었습니다.");
+        return ResponseEntity.ok("좋아요가 성공적으로 삭제되었습니다.");
     }
 
     //softDelete

@@ -10,5 +10,5 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     List<Friend> findByFollower(User follower);
     List<Friend> findByFollowee(User followee);
 
-    boolean existsByFollowerAndFollowee(User follower, User followee);
+    boolean existsByFollowerAndFollowee(Long userId, User followee);
 }

@@ -12,7 +12,7 @@ public class CommentResponseDto {
     private final String content;
     private final Integer likeCount;
 
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder
     public CommentResponseDto(Long id, Long postId, Long userId, String username, String content, Integer likeCount) {
         this.id = id;
         this.postId = postId;
@@ -22,13 +22,4 @@ public class CommentResponseDto {
         this.likeCount = likeCount;
     }
 
-    public static CommentResponseDto of(Comment comment) {
-        return CommentResponseDto.builder()
-                .id(comment.getId())
-                .postId(comment.getPost().getId())
-                .userId(comment.getUser().getId())
-                .content(comment.getContent())
-                .likeCount(comment.getLike_cnt())
-                .build();
-    }
 }

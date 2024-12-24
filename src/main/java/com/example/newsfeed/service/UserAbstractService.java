@@ -4,14 +4,7 @@ import com.example.newsfeed.dto.user.*;
 
 public abstract class UserAbstractService {
 
-    /**
-     * 유저 생성
-     */
-    public final CreateUserResponseDto createUser(CreateUserRequestDto createUserRequestDto) {
-        validateUserEmail(createUserRequestDto.getEmail());
-        return executeCreateUser(createUserRequestDto);
-    }
-
+    // service logic
     /**
      * 유저 이름 갱신
      */
@@ -37,19 +30,18 @@ public abstract class UserAbstractService {
     /**
      * 유저 삭제
      */
-    public final void deleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto) {
+    public final void softDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto) {
         validateUserPassword(userId, deleteUserRequestDto.getCurrentPassword());
-        executeDeleteUser(userId, deleteUserRequestDto);
+        executeSoftDeleteUser(userId, deleteUserRequestDto);
     }
 
     // validator
-    protected abstract void validateUserEmail(String email);
     protected abstract void validateUserPassword(Long userId, String currentPassword);
 
+
     // business logic
-    protected abstract CreateUserResponseDto executeCreateUser(CreateUserRequestDto createUserRequestDto);
     protected abstract UpdateUserNameResponseDto executeUpdateUserName(Long userId, UpdateUserNameRequestDto updateUserReqDto);
     protected abstract void executeUpdateUserPassword(Long userId, UpdateUserPasswordRequestDto updateUserPasswordRequestDto);
     protected abstract FetchUserResponseDto executeFetchOneById(Long userId);
-    protected abstract void executeDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto);
+    protected abstract void executeSoftDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto);
 }

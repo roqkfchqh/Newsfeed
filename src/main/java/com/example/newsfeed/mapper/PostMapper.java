@@ -9,7 +9,7 @@ import java.util.List;
 
 public class PostMapper {
 
-    public static PostResponseDto toPostResponseDto(Post post) {
+    public static PostResponseDto toDto(Post post) {
         return PostResponseDto.builder()
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -20,7 +20,7 @@ public class PostMapper {
                 .build();
     }
 
-    public static PostResponseDto toPostResponseDto(Post post, List<CommentResponseDto> comment) {
+    public static PostResponseDto toDto(Post post, List<CommentResponseDto> comment) {
         return PostResponseDto.builder()
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -32,7 +32,7 @@ public class PostMapper {
                 .build();
     }
 
-    public static Post fromPostRequestDto(String title, String content, User user) {
+    public static Post toEntity(String title, String content, User user) {
         return Post.builder()
                 .title(title)
                 .content(content)
