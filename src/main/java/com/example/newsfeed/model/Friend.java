@@ -26,6 +26,7 @@ public class Friend {
     @JoinColumn(name = "follwee_id")
     private User followee;
 
+    @Builder.Default
     private Boolean follow = false;
 
     public void acceptFollow() {

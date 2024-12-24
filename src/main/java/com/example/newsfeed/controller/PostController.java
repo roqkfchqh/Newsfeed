@@ -103,7 +103,7 @@ public class PostController {
         return ResponseEntity.ok("좋아요가 성공적으로 삭제되었습니다.");
     }
 
-    //softDelete
+    //delete
     @DeleteMapping("/{postId}")
     public ResponseEntity<String> deletePost(
             HttpServletRequest req,

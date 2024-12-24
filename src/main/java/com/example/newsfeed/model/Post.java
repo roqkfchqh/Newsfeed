@@ -24,7 +24,8 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Integer like_cnt;
+    @Builder.Default
+    private Integer like_cnt = 0;
 
     public void update(String title, String content){
         if(title != null){
