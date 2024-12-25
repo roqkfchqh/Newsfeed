@@ -20,7 +20,7 @@ public class AuthService extends AuthAbstractService {
     private final Encoder encoder;
 
     @Override
-    public SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto) {
+    protected SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto) {
         User user = AuthMapper.fromSignupUserRequestDto(
                 signupUserRequestDto,
                 encoder.encode(signupUserRequestDto.getPassword())
@@ -30,33 +30,33 @@ public class AuthService extends AuthAbstractService {
     }
 
     @Override
-    public Long executeLogin(Long userId) {
-        return getNotDeletedUserById(userId).getId();
+    protected Long executeLogin(Long userId) {
+        return getUserById(userId).getId();
     }
 
     // validator
     @Override
-    public void validateExistUserEmail(String email) {
+    protected void validateExistUserEmail(String email) {
         if (this.userRepository.existsByEmail(email)) {
             throw new CustomException(ErrorCode.ALREADY_USED_EMAIL);
         }
     }
 
     @Override
-    public void validateUserPassword(String currentPassword, String hashedPassword) {
+    protected void validateUserPassword(String currentPassword, String hashedPassword) {
         if (!encoder.matches(currentPassword, hashedPassword)) {
             throw new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD);
         }
     }
 
     @Override
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmailAndDeletedAtIsNotNull(email)
+    protected User getUserByEmail(String email) {
+        return userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD));
     }
 
-    private User getNotDeletedUserById(Long userId) {
-        return userRepository.findByIdAndDeletedAtIsNull(userId)
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }
