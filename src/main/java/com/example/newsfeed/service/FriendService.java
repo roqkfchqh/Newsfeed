@@ -10,12 +10,14 @@ import com.example.newsfeed.repository.FriendRepository;
 import com.example.newsfeed.repository.UserRepository;
 import com.example.newsfeed.service.validate_template.FriendAbstractService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FriendService extends FriendAbstractService {
@@ -50,6 +52,7 @@ public class FriendService extends FriendAbstractService {
     @Override
     public List<FriendResponseDto> executeGetFollowers(Long userId){
         List<Friend> followers = friendRepository.findByFollower(userId);
+        followers.forEach(friend -> log.info("Friend Data: {}", friend));
         return followers.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
@@ -58,6 +61,7 @@ public class FriendService extends FriendAbstractService {
     @Override
     public List<FriendResponseDto> executeGetFollowees(Long userId) {
         List<Friend> followees = friendRepository.findByFollowee(userId); //
+        followees.forEach(friend -> log.info("Friend Data: {}", friend));
         return followees.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
