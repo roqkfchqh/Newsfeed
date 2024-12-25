@@ -4,6 +4,7 @@ import com.example.newsfeed.dto.post.PostRequestDto;
 import com.example.newsfeed.dto.post.PostResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
+import com.example.newsfeed.service.PostLikeService;
 import com.example.newsfeed.service.PostService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ public class PostController {
     private static final String PAGE_SIZE = "10";
 
     private final PostService postService;
+    private final PostLikeService postLikeService;
 
     //create post
     @PostMapping
@@ -85,7 +87,7 @@ public class PostController {
 
         Long userId = getUserId(req);
 
-        postService.likePost(postId, userId);
+        postLikeService.likePost(postId, userId);
 
         return ResponseEntity.ok("좋아요가 성공적으로 추가되었습니다.");
     }
@@ -98,7 +100,7 @@ public class PostController {
 
         Long userId = getUserId(req);
 
-        postService.dislikePost(postId, userId);
+        postLikeService.dislikePost(postId, userId);
 
         return ResponseEntity.ok("좋아요가 성공적으로 삭제되었습니다.");
     }
