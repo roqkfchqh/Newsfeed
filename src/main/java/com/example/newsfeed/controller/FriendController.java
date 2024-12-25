@@ -41,7 +41,7 @@ public class FriendController {
     @PatchMapping("/{relationId}/accept")
     public ResponseEntity<String> acceptFriend(
             @PathVariable("relationId") Long relationId,
-            @RequestBody HttpServletRequest request
+            HttpServletRequest request
     ) {
         Long userId = getUserId(request);
         friendService.acceptFriend(relationId, userId);
