@@ -45,13 +45,13 @@ public class AuthService extends AuthAbstractService {
     @Override
     public void validateUserPassword(String currentPassword, String hashedPassword) {
         if (!encoder.matches(currentPassword, hashedPassword)) {
-            throw new CustomException(ErrorCode.WRONG_PASSWORD);
+            throw new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD);
         }
     }
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndDeletedAtIsNotNull(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD));
     }
 
