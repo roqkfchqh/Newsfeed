@@ -11,6 +11,7 @@ public class PostMapper {
 
     public static PostResponseDto toDto(Post post) {
         return PostResponseDto.builder()
+                .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .username(post.getUser().getName())
@@ -22,6 +23,7 @@ public class PostMapper {
 
     public static PostResponseDto toDto(Post post, List<CommentResponseDto> comment) {
         return PostResponseDto.builder()
+                .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .username(post.getUser().getName())
