@@ -8,7 +8,8 @@ import com.example.newsfeed.model.Friend;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.FriendRepository;
 import com.example.newsfeed.repository.UserRepository;
-import com.example.newsfeed.service.validate_template.FriendAbstractService;
+import com.example.newsfeed.service.template.FriendAbstractService;
+import com.example.newsfeed.service.validate.ValidateHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,9 +23,13 @@ public class FriendService extends FriendAbstractService {
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
+    private final ValidateHelper validateHelper;
 
     @Override
     protected FriendResponseDto executeCreateFriend(Long friendId, Long userId){
+        validateHelper.user(userId);
+        validateHelper.user(friendId);
+
         User user = getUser(userId);
         User friend = getUser(friendId);
 
@@ -37,18 +42,26 @@ public class FriendService extends FriendAbstractService {
     @Transactional
     @Override
     protected void executeAcceptFriend(Long relationId, Long userId) {
+        validateHelper.user(userId);
+        validateHelper.friend(relationId);
+
         Friend friend = getFriend(relationId);
         friend.acceptFollow();
     }
 
     @Override
     protected void executeRejectFriend(Long relationId, Long userId) {
+        validateHelper.user(userId);
+        validateHelper.friend(relationId);
+
         Friend friend = getFriend(relationId);
         friendRepository.delete(friend);
     }
 
     @Override
     protected List<FriendResponseDto> executeGetFollowers(Long userId){
+        validateHelper.user(userId);
+
         List<Friend> followers = friendRepository.findByFollower(userId);
         return followers.stream()
                 .map(FriendMapper::toDto)
@@ -57,6 +70,8 @@ public class FriendService extends FriendAbstractService {
 
     @Override
     protected List<FriendResponseDto> executeGetFollowees(Long userId) {
+        validateHelper.user(userId);
+
         List<Friend> followees = friendRepository.findByFollowee(userId); //
         return followees.stream()
                 .map(FriendMapper::toDto)
@@ -65,6 +80,8 @@ public class FriendService extends FriendAbstractService {
 
     @Override
     protected List<FriendResponseDto> executeGetFriends(Long userId) {
+        validateHelper.user(userId);
+
         List<Friend> friends = friendRepository.findFriendsByUserId(userId);
         return friends.stream()
                 .map(FriendMapper::toDto)
@@ -73,6 +90,9 @@ public class FriendService extends FriendAbstractService {
 
     @Override
     protected void executeDeleteFriend(Long relationId, Long userId) {
+        validateHelper.user(userId);
+        validateHelper.friend(relationId);
+
         Friend friend = getFriend(relationId);
         friendRepository.delete(friend);
     }
@@ -82,14 +102,6 @@ public class FriendService extends FriendAbstractService {
      */
 
     //유저 유효성 검증
-    @Override
-    protected void validateUser(Long userId){
-        if(userId == null){
-            throw new CustomException(ErrorCode.LOGIN_REQUIRED);
-        }
-        userRepository.findActiveUserById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
 
     @Override
     protected Boolean validateRelation(Long friendId, Long userId) {
@@ -140,7 +152,7 @@ public class FriendService extends FriendAbstractService {
 
     private Friend getFriend(Long friendId) {
         return friendRepository.findById(friendId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.RELATION_NOT_FOUND));
     }
 
 }
