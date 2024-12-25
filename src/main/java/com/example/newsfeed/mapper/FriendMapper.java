@@ -7,6 +7,9 @@ import com.example.newsfeed.model.User;
 public class FriendMapper {
 
     public static FriendResponseDto toDto(Friend friend) {
+        if (friend == null || friend.getFollower() == null || friend.getFollowee() == null) {
+            throw new IllegalArgumentException("Friend or associated user is null");
+        }
         return FriendResponseDto.builder()
                 .id(friend.getId())
                 .followerName(friend.getFollower().getName())

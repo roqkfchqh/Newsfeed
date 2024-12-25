@@ -17,7 +17,15 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     @Query("SELECT f FROM Friend f JOIN f.follower u WHERE u.deletedAt IS NULL AND f.follower.id = :userId AND f.follow = false")
     List<Friend> findByFollowee(@Param("userId") Long userId);
 
-    @Query("SELECT f FROM Friend f JOIN f.follower u1 JOIN f.followee u2 WHERE u1.deletedAt IS NULL AND u2.deletedAt IS NULL AND f.follower.id = :userId AND f.follow = true")
+    @Query("""
+    SELECT f FROM Friend f
+    JOIN f.follower u1
+    JOIN f.followee u2
+    WHERE (f.follower.id = :userId OR f.followee.id = :userId)
+    AND f.follow = true
+    AND u1.deletedAt IS NULL
+    AND u2.deletedAt IS NULL
+    """)
     List<Friend> findFriendsByUserId(@Param("userId") Long userId);
 
     @Query("SELECT COUNT(f) > 0 FROM Friend f WHERE f.follower.id = :followerId AND f.followee.id = :followeeId")

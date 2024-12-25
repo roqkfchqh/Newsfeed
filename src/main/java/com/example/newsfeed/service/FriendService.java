@@ -41,6 +41,7 @@ public class FriendService extends FriendAbstractService {
     public void executeAcceptFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friend.acceptFollow();
+        friendRepository.save(friend);
     }
 
     @Override
@@ -70,6 +71,19 @@ public class FriendService extends FriendAbstractService {
     @Override
     public List<FriendResponseDto> executeGetFriends(Long userId) {
         List<Friend> friends = friendRepository.findFriendsByUserId(userId);
+        if (friends.isEmpty()) {
+            log.warn("No friends found for userId={} with query condition", userId);
+        } else {
+            friends.forEach(friend -> log.info("Friend found: {}", friend));
+        }
+        friends.stream().forEach(friend -> {
+            log.info("Friend Id: {}, Follower: {}, Followee: {}, Follow: {}",
+                    friend.getId(),
+                    friend.getFollower().getId(),
+                    friend.getFollowee().getId(),
+                    friend.getFollow()
+            );
+        });
         return friends.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
@@ -130,6 +144,13 @@ public class FriendService extends FriendAbstractService {
 
         if (!friend.getFollowee().getId().equals(userId) && !friend.getFollower().getId().equals(userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN_OPERATION);
+        }
+    }
+
+    @Override
+    protected void validateSelfRequest(Long friendId, Long userId) {
+        if (friendId.equals(userId)) {
+            throw new CustomException(ErrorCode.SELF_REQUEST_NOT_ALLOWED);
         }
     }
 

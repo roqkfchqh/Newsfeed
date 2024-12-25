@@ -18,6 +18,7 @@ public enum ErrorCode {
     NOT_LIKED(HttpStatus.BAD_REQUEST, "좋아요 수를 업데이트 할 수 없습니다."),
     ALREADY_FRIEND(HttpStatus.BAD_REQUEST, "이미 친구관계입니다."),
     ALREADY_NOT_FRIEND(HttpStatus.BAD_REQUEST, "이미 친구관계가 아닙니다."),
+    SELF_REQUEST_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자기 자신에게 친구 요청을 보낼 수 없습니다."),
     ALREADY_FRIEND_REQUEST(HttpStatus.BAD_REQUEST, "이미 요청 진행중인 상태입니다."),
 
     //401
