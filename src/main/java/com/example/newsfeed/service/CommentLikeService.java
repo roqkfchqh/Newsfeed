@@ -9,7 +9,8 @@ import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.CommentLikeRepository;
 import com.example.newsfeed.repository.CommentRepository;
 import com.example.newsfeed.repository.UserRepository;
-import com.example.newsfeed.service.validate_template.CommentLikeAbstractService;
+import com.example.newsfeed.service.template.CommentLikeAbstractService;
+import com.example.newsfeed.service.validate.ValidateHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +22,14 @@ public class CommentLikeService extends CommentLikeAbstractService {
     private final CommentLikeRepository commentLikeRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final ValidateHelper validateHelper;
 
     @Override
     @Transactional
     protected void executeLikeComment(Long userId, Long commentId) {
+        validateHelper.user(userId);
+        validateHelper.comment(commentId);
+
         Comment comment = getComment(commentId);
 
         User user = getUser(userId);
@@ -39,6 +44,9 @@ public class CommentLikeService extends CommentLikeAbstractService {
     @Override
     @Transactional
     protected void executeUnlikeComment(Long userId, Long commentId) {
+        validateHelper.user(userId);
+        validateHelper.comment(commentId);
+
         Comment comment = getComment(commentId);
 
         CommentLike like = getCommentLike(userId, commentId);
@@ -46,20 +54,6 @@ public class CommentLikeService extends CommentLikeAbstractService {
         commentLikeRepository.delete(like);
 
         comment.decreaseLikeCount();
-    }
-
-    @Override
-    protected void validateUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-    }
-
-    @Override
-    protected void validateComment(Long commentId) {
-        if (!commentRepository.existsById(commentId)) {
-            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
-        }
     }
 
     @Override

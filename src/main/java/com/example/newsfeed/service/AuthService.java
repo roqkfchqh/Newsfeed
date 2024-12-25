@@ -8,7 +8,7 @@ import com.example.newsfeed.exception.ErrorCode;
 import com.example.newsfeed.mapper.AuthMapper;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.UserRepository;
-import com.example.newsfeed.service.validate_template.AuthAbstractService;
+import com.example.newsfeed.service.template.AuthAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class AuthService extends AuthAbstractService {
     private final Encoder encoder;
 
     @Override
-    public SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto) {
+    protected SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto) {
         User user = AuthMapper.fromSignupUserRequestDto(
                 signupUserRequestDto,
                 encoder.encode(signupUserRequestDto.getPassword())
@@ -32,13 +32,13 @@ public class AuthService extends AuthAbstractService {
     }
 
     @Override
-    public Long executeLogin(Long userId) {
-        return getUserById(userId).getId();
+    protected Long executeLogin(Long userId) {
+        return getNotDeletedUserById(userId).getId();
     }
 
     // validator
     @Override
-    public void validateExistUserEmail(String email) {
+    protected void validateExistUserEmail(String email) {
         Optional<User> checkUser = this.userRepository.findByEmail(email);
 
         if (checkUser.isPresent()) {
@@ -47,7 +47,7 @@ public class AuthService extends AuthAbstractService {
     }
 
     @Override
-    public void validateUserPassword(Long userId, String currentPassword) {
+    protected void validateUserPassword(Long userId, String currentPassword) {
         String findHashedPassword = getUserById(userId).getPassword();
 
         if (!encoder.matches(currentPassword, findHashedPassword)) {
@@ -56,7 +56,7 @@ public class AuthService extends AuthAbstractService {
     }
 
     @Override
-    public Long getUserIdByEmail(String email) {
+    protected Long getUserIdByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD));
 
@@ -65,6 +65,11 @@ public class AuthService extends AuthAbstractService {
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private User getNotDeletedUserById(Long userId) {
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }
