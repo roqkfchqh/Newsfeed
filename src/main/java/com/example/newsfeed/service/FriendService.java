@@ -104,20 +104,19 @@ public class FriendService extends FriendAbstractService {
     //유저 유효성 검증
 
     @Override
-    protected Boolean validateRelation(Long friendId, Long userId) {
-        return Boolean.TRUE.equals(friendRepository.findFollowByFollowerIdAndFolloweeId(friendId, userId));
+    protected Boolean validateRelation(Long relationId) {
+        return safeBoolean(friendRepository.findFollowById(relationId));
     }
 
-    //친구관계가 true 인지 false 인지
     @Override
-    protected Boolean validateRelation(Long relationId) {
-        return friendRepository.findFollowById(relationId);
+    protected Boolean validateRelation(Long friendId, Long userId) {
+        return safeBoolean(friendRepository.findFollowByFollowerIdAndFolloweeId(friendId, userId));
     }
 
     //이미 요청 중인 관계인지
     @Override
     protected void validateFollowExists(Long friendId, Long userId) {
-        if (friendRepository.existsByFollowerIdAndFolloweeId(friendId, userId)){
+        if (Boolean.TRUE.equals(friendRepository.existsByFollowerIdAndFolloweeId(friendId, userId))) {
             throw new CustomException(ErrorCode.ALREADY_FRIEND_REQUEST);
         }
     }
@@ -153,6 +152,13 @@ public class FriendService extends FriendAbstractService {
     private Friend getFriend(Long friendId) {
         return friendRepository.findById(friendId)
                 .orElseThrow(() -> new CustomException(ErrorCode.RELATION_NOT_FOUND));
+    }
+
+    private Boolean safeBoolean(Boolean value) {
+        if (value == null) {
+            throw new CustomException(ErrorCode.RELATION_NOT_FOUND);
+        }
+        return value;
     }
 
 }
