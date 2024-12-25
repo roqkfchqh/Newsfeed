@@ -12,8 +12,6 @@ import com.example.newsfeed.service.validate_template.AuthAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService extends AuthAbstractService {
@@ -39,33 +37,22 @@ public class AuthService extends AuthAbstractService {
     // validator
     @Override
     public void validateExistUserEmail(String email) {
-        Optional<User> checkUser = this.userRepository.findByEmail(email);
-
-        if (checkUser.isPresent()) {
+        if (this.userRepository.existsByEmail(email)) {
             throw new CustomException(ErrorCode.ALREADY_USED_EMAIL);
         }
     }
 
     @Override
-    public void validateUserPassword(Long userId, String currentPassword) {
-        String findHashedPassword = getUserById(userId).getPassword();
-
-        if (!encoder.matches(currentPassword, findHashedPassword)) {
-            throw new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD);
+    public void validateUserPassword(String currentPassword, String hashedPassword) {
+        if (!encoder.matches(currentPassword, hashedPassword)) {
+            throw new CustomException(ErrorCode.WRONG_PASSWORD);
         }
     }
 
     @Override
-    public Long getUserIdByEmail(String email) {
-        User user = userRepository.findByEmail(email)
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD));
-
-        return user.getId();
-    }
-
-    private User getUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     private User getNotDeletedUserById(Long userId) {

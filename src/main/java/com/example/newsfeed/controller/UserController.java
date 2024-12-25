@@ -21,10 +21,24 @@ public class UserController {
      * 유저(본인) 조회
      */
     @GetMapping
-    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> executeFetchUser(
+    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getCurrentUser(
             HttpServletRequest request
     ) {
         Long userId = SessionUserUtils.getId(request);
+        FetchUserResponseDto data = this.userService.fetchOneById(userId);
+
+        return ResponseEntity
+                .ok()
+                .body(new BaseResponseDto<>(data));
+    }
+
+    /**
+     * 유저(타인) 조회
+     */
+    @GetMapping("/{userId}")
+    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getUser(
+            @PathVariable Long userId
+    ) {
         FetchUserResponseDto data = this.userService.fetchOneById(userId);
 
         return ResponseEntity

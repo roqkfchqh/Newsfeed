@@ -3,6 +3,7 @@ package com.example.newsfeed.service.validate_template;
 import com.example.newsfeed.dto.auth.LoginUserRequestDto;
 import com.example.newsfeed.dto.auth.SignupUserRequestDto;
 import com.example.newsfeed.dto.auth.SignupUserResponseDto;
+import com.example.newsfeed.model.User;
 
 public abstract class AuthAbstractService {
 
@@ -19,17 +20,17 @@ public abstract class AuthAbstractService {
      * 로그인
      */
     public final Long login(LoginUserRequestDto loginUserRequestDto) {
-        Long userId = getUserIdByEmail(loginUserRequestDto.getEmail());
-        validateUserPassword(userId, loginUserRequestDto.getPassword());
-        return executeLogin(userId);
+        User user = getUserByEmail(loginUserRequestDto.getEmail());
+        validateUserPassword(loginUserRequestDto.getPassword(), user.getPassword());
+        return executeLogin(user.getId());
     }
 
     // getter
-    protected abstract Long getUserIdByEmail(String email);
+    protected abstract User getUserByEmail(String email);
 
     // validator
     protected abstract void validateExistUserEmail(String email);
-    protected abstract void validateUserPassword(Long userId, String currentPassword);
+    protected abstract void validateUserPassword(String currentPassword, String hashedPassword);
 
     // business logic
     protected abstract SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto);

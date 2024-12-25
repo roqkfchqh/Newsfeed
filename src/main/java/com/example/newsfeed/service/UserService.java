@@ -24,7 +24,7 @@ public class UserService extends UserAbstractService {
     public UpdateUserNameResponseDto executeUpdateUserName(Long userId, UpdateUserNameRequestDto updateUserReqDto) {
         User user = getUserById(userId);
         user.updateUserName(updateUserReqDto.getName());
-        return UserMapper.toUpdateUserBaneResponseDto(user);
+        return UserMapper.toUpdateUserNameResponseDto(user);
     }
 
     @Override
