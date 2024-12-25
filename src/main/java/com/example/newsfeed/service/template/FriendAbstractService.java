@@ -1,4 +1,4 @@
-package com.example.newsfeed.service.validate_template;
+package com.example.newsfeed.service.template;
 
 import com.example.newsfeed.dto.friend.FriendResponseDto;
 import com.example.newsfeed.exception.CustomException;
@@ -9,8 +9,6 @@ import java.util.List;
 public abstract class FriendAbstractService {
 
     public final FriendResponseDto createFriend(Long friendId, Long userId) {
-        validateUser(userId);
-        validateUser(friendId);
         if(validateRelation(friendId, userId)) {
             throw new CustomException(ErrorCode.ALREADY_FRIEND);
         }
@@ -19,7 +17,6 @@ public abstract class FriendAbstractService {
     }
 
     public final void acceptFriend(Long relationId, Long userId) {
-        validateUser(userId);
         if(validateRelation(relationId)) {
             throw new CustomException(ErrorCode.ALREADY_FRIEND);
         }
@@ -28,7 +25,6 @@ public abstract class FriendAbstractService {
     }
 
     public final void rejectFriend(Long relationId, Long userId) {
-        validateUser(userId);
         if(validateRelation(relationId)) {
             throw new CustomException(ErrorCode.ALREADY_FRIEND);
         }
@@ -37,23 +33,19 @@ public abstract class FriendAbstractService {
     }
 
     public final List<FriendResponseDto> getFollowers(Long userId) {
-        validateUser(userId);
         return executeGetFollowers(userId);
     }
 
     public final List<FriendResponseDto> getFollowees(Long userId) {
-        validateUser(userId);
         return executeGetFollowees(userId);
     }
 
     public final List<FriendResponseDto> getFriends(Long userId) {
-        validateUser(userId);
         return executeGetFriends(userId);
     }
 
     public void deleteFriend(Long relationId, Long userId) {
-        validateUser(userId);
-        if(!validateRelation(relationId) || validateRelation(relationId) == null) {
+        if(!validateRelation(relationId)) {
             throw new CustomException(ErrorCode.ALREADY_NOT_FRIEND);
         }
         validateDelete(relationId, userId);
@@ -64,7 +56,6 @@ public abstract class FriendAbstractService {
     validator
      */
 
-    protected abstract void validateUser(Long userId);    //유저검증
     protected abstract Boolean validateRelation(Long friendId, Long userId);
     protected abstract Boolean validateRelation(Long relationId); //관계 검증(true = 친구 false = 팔로잉 팔로워 관계)
     protected abstract void validateFollowExists(Long friendId, Long userId);

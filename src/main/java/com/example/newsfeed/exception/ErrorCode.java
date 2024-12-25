@@ -35,6 +35,7 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "없는 페이지입니다."),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요를 누른 기록이 없습니다."),
     REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 요청입니다."),
+    RELATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 요청입니다."),
 
     //500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 관리를 못해서 줴송합니다.."),
