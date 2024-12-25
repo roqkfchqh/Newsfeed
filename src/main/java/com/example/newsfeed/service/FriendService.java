@@ -8,28 +8,25 @@ import com.example.newsfeed.model.Friend;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.FriendRepository;
 import com.example.newsfeed.repository.UserRepository;
-import com.example.newsfeed.service.template.FriendAbstractService;
-import com.example.newsfeed.service.validate.ValidateHelper;
+import com.example.newsfeed.service.validate_template.FriendAbstractService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FriendService extends FriendAbstractService {
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
-    private final ValidateHelper validateHelper;
 
     @Override
-    protected FriendResponseDto executeCreateFriend(Long friendId, Long userId){
-        validateHelper.user(userId);
-        validateHelper.user(friendId);
-
+    public FriendResponseDto executeCreateFriend(Long friendId, Long userId){
         User user = getUser(userId);
         User friend = getUser(friendId);
 
@@ -41,58 +38,59 @@ public class FriendService extends FriendAbstractService {
 
     @Transactional
     @Override
-    protected void executeAcceptFriend(Long relationId, Long userId) {
-        validateHelper.user(userId);
-        validateHelper.friend(relationId);
-
+    public void executeAcceptFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friend.acceptFollow();
+        friendRepository.save(friend);
     }
 
     @Override
-    protected void executeRejectFriend(Long relationId, Long userId) {
-        validateHelper.user(userId);
-        validateHelper.friend(relationId);
-
+    public void executeRejectFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friendRepository.delete(friend);
     }
 
     @Override
-    protected List<FriendResponseDto> executeGetFollowers(Long userId){
-        validateHelper.user(userId);
-
+    public List<FriendResponseDto> executeGetFollowers(Long userId){
         List<Friend> followers = friendRepository.findByFollower(userId);
+        followers.forEach(friend -> log.info("Friend Data: {}", friend));
         return followers.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    protected List<FriendResponseDto> executeGetFollowees(Long userId) {
-        validateHelper.user(userId);
-
+    public List<FriendResponseDto> executeGetFollowees(Long userId) {
         List<Friend> followees = friendRepository.findByFollowee(userId); //
+        followees.forEach(friend -> log.info("Friend Data: {}", friend));
         return followees.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    protected List<FriendResponseDto> executeGetFriends(Long userId) {
-        validateHelper.user(userId);
-
+    public List<FriendResponseDto> executeGetFriends(Long userId) {
         List<Friend> friends = friendRepository.findFriendsByUserId(userId);
+        if (friends.isEmpty()) {
+            log.warn("No friends found for userId={} with query condition", userId);
+        } else {
+            friends.forEach(friend -> log.info("Friend found: {}", friend));
+        }
+        friends.stream().forEach(friend -> {
+            log.info("Friend Id: {}, Follower: {}, Followee: {}, Follow: {}",
+                    friend.getId(),
+                    friend.getFollower().getId(),
+                    friend.getFollowee().getId(),
+                    friend.getFollow()
+            );
+        });
         return friends.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    protected void executeDeleteFriend(Long relationId, Long userId) {
-        validateHelper.user(userId);
-        validateHelper.friend(relationId);
-
+    public void executeDeleteFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friendRepository.delete(friend);
     }
@@ -102,21 +100,30 @@ public class FriendService extends FriendAbstractService {
      */
 
     //유저 유효성 검증
-
     @Override
-    protected Boolean validateRelation(Long relationId) {
-        return safeBoolean(friendRepository.findFollowById(relationId));
+    protected void validateUser(Long userId){
+        if(userId == null){
+            throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        }
+        userRepository.findActiveUserById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Override
     protected Boolean validateRelation(Long friendId, Long userId) {
-        return safeBoolean(friendRepository.findFollowByFollowerIdAndFolloweeId(friendId, userId));
+        return Boolean.TRUE.equals(friendRepository.findFollowByFollowerIdAndFolloweeId(friendId, userId));
+    }
+
+    //친구관계가 true 인지 false 인지
+    @Override
+    protected Boolean validateRelation(Long relationId) {
+        return friendRepository.findFollowById(relationId);
     }
 
     //이미 요청 중인 관계인지
     @Override
     protected void validateFollowExists(Long friendId, Long userId) {
-        if (Boolean.TRUE.equals(friendRepository.existsByFollowerIdAndFolloweeId(friendId, userId))) {
+        if (friendRepository.existsByFollowerIdAndFolloweeId(friendId, userId)){
             throw new CustomException(ErrorCode.ALREADY_FRIEND_REQUEST);
         }
     }
@@ -140,6 +147,13 @@ public class FriendService extends FriendAbstractService {
         }
     }
 
+    @Override
+    protected void validateSelfRequest(Long friendId, Long userId) {
+        if (friendId.equals(userId)) {
+            throw new CustomException(ErrorCode.SELF_REQUEST_NOT_ALLOWED);
+        }
+    }
+
     /*
     helper method
      */
@@ -151,14 +165,7 @@ public class FriendService extends FriendAbstractService {
 
     private Friend getFriend(Long friendId) {
         return friendRepository.findById(friendId)
-                .orElseThrow(() -> new CustomException(ErrorCode.RELATION_NOT_FOUND));
-    }
-
-    private Boolean safeBoolean(Boolean value) {
-        if (value == null) {
-            throw new CustomException(ErrorCode.RELATION_NOT_FOUND);
-        }
-        return value;
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
 }
