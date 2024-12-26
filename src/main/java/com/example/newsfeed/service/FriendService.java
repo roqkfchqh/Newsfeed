@@ -101,6 +101,7 @@ public class FriendService extends FriendAbstractService {
     validator
      */
 
+
     //불리언 형 오류 반환 확인
     @Override
     protected Boolean validateRelation(Long friendId, Long userId) {
