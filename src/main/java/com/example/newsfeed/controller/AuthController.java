@@ -5,6 +5,7 @@ import com.example.newsfeed.dto.auth.AuthMessageResponseDto;
 import com.example.newsfeed.dto.auth.LoginUserRequestDto;
 import com.example.newsfeed.dto.auth.SignupUserRequestDto;
 import com.example.newsfeed.dto.auth.SignupUserResponseDto;
+import com.example.newsfeed.mapper.BaseResponseMapper;
 import com.example.newsfeed.service.AuthService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,9 +33,8 @@ public class AuthController {
     ) {
         SignupUserResponseDto data = authService.signup(signupUserRequestDto);
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
     /**
@@ -50,9 +50,8 @@ public class AuthController {
 
         AuthMessageResponseDto data = new AuthMessageResponseDto("로그인에 성공하였습니다.");
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
     /**
@@ -66,8 +65,7 @@ public class AuthController {
 
         AuthMessageResponseDto data = new AuthMessageResponseDto("로그아웃 되었습니다.");
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 }
