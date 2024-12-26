@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Builder
 @AllArgsConstructor
@@ -28,6 +30,9 @@ public class Friend {
 
     @Builder.Default
     private Boolean follow = false;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     public void acceptFollow() {
         this.follow = true;

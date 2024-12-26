@@ -1,4 +1,4 @@
-package com.example.newsfeed.service.validate_template;
+package com.example.newsfeed.service.template;
 
 import com.example.newsfeed.dto.user.*;
 import com.example.newsfeed.model.User;

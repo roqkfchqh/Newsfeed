@@ -13,9 +13,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p " +
             "FROM Post p " +
-            "JOIN p.user u " +
-            "JOIN Friend f ON f.followee.id = u.id " +
-            "WHERE f.follower.id = :userId AND f.follow = true AND u.deletedAt IS NULL")
+            "JOIN FETCH p.user u " +
+            "JOIN FETCH Friend f ON (f.follower.id = :userId OR f.followee.id = :userId) " +
+            "WHERE (f.follower.id = :userId OR f.followee.id = :userId) AND f.follow = true AND u.deletedAt IS NULL")
     List<Post> findPostsByFriends(@Param("userId") Long userId, Sort sort);
 
     @Query("SELECT p FROM Post p JOIN FETCH p.user WHERE p.id = :postId AND p.user.deletedAt IS NULL")

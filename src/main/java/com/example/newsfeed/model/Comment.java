@@ -33,7 +33,7 @@ public class Comment extends BaseEntity {
         this.user = user;
         this.post = post;
         this.content = content;
-        this.like_cnt = likeCnt;
+        this.like_cnt = likeCnt >= 0 ? likeCnt : 0;
     }
 
     public void updateContent(String content) {
@@ -41,14 +41,11 @@ public class Comment extends BaseEntity {
     }
 
     public void increaseLikeCount() {
-        if (this.like_cnt == null) {
-            this.like_cnt = 0;
-        }
         this.like_cnt++;
     }
 
     public void decreaseLikeCount() {
-        if (this.like_cnt != null && this.like_cnt > 0) {
+        if (this.like_cnt > 0) {
             this.like_cnt--;
         }
     }

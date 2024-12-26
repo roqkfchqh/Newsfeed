@@ -25,7 +25,7 @@ public class UserController {
             HttpServletRequest request
     ) {
         Long userId = SessionUserUtils.getId(request);
-        FetchUserResponseDto data = this.userService.fetchOneById(userId);
+        FetchUserResponseDto data = userService.fetchOneById(userId);
 
         return ResponseEntity
                 .ok()
@@ -39,7 +39,7 @@ public class UserController {
     public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getUser(
             @PathVariable Long userId
     ) {
-        FetchUserResponseDto data = this.userService.fetchOneById(userId);
+        FetchUserResponseDto data = userService.fetchOneById(userId);
 
         return ResponseEntity
                 .ok()
@@ -55,7 +55,7 @@ public class UserController {
             HttpServletRequest request
     ) {
         Long userId = SessionUserUtils.getId(request);
-        UpdateUserNameResponseDto data = this.userService.updateUserName(userId, updateUserReqDto);
+        UpdateUserNameResponseDto data = userService.updateUserName(userId, updateUserReqDto);
 
         return ResponseEntity
                 .ok()
@@ -71,7 +71,7 @@ public class UserController {
             HttpServletRequest request
     ) {
         Long userId = SessionUserUtils.getId(request);
-        this.userService.updateUserPassword(userId, updateUserPasswordRequestDto);
+        userService.updateUserPassword(userId, updateUserPasswordRequestDto);
         UserMessageResponseDto data = new UserMessageResponseDto("비밀번호가 성공적으로 수정되었습니다.");
 
         return ResponseEntity
@@ -88,7 +88,7 @@ public class UserController {
             HttpServletRequest request
     ) {
         Long userId = SessionUserUtils.getId(request);
-        this.userService.softDeleteUser(userId, deleteUserRequestDto);
+        userService.softDeleteUser(userId, deleteUserRequestDto);
         SessionUserUtils.invalidate(request);
         UserMessageResponseDto data = new UserMessageResponseDto("사용자가 성공적으로 삭제되었습니다.");
 

@@ -18,6 +18,7 @@ public enum ErrorCode {
     NOT_LIKED(HttpStatus.BAD_REQUEST, "좋아요 수를 업데이트 할 수 없습니다."),
     ALREADY_FRIEND(HttpStatus.BAD_REQUEST, "이미 친구관계입니다."),
     ALREADY_NOT_FRIEND(HttpStatus.BAD_REQUEST, "이미 친구관계가 아닙니다."),
+    SELF_REQUEST_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자기 자신에게 친구 요청을 보낼 수 없습니다."),
     ALREADY_FRIEND_REQUEST(HttpStatus.BAD_REQUEST, "이미 요청 진행중인 상태입니다."),
 
     //401
@@ -35,6 +36,7 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "없는 페이지입니다."),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요를 누른 기록이 없습니다."),
     REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 요청입니다."),
+    RELATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 요청입니다."),
 
     //500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 관리를 못해서 줴송합니다.."),

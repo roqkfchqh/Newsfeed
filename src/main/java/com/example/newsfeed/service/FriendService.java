@@ -8,21 +8,25 @@ import com.example.newsfeed.model.Friend;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.FriendRepository;
 import com.example.newsfeed.repository.UserRepository;
-import com.example.newsfeed.service.validate_template.FriendAbstractService;
+import com.example.newsfeed.service.template.FriendAbstractService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FriendService extends FriendAbstractService {
+    //friend 오류 수정 확인
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
 
+    //중복으로 좋아요 보내 짐
     @Override
     public FriendResponseDto executeCreateFriend(Long friendId, Long userId){
         User user = getUser(userId);
@@ -39,6 +43,7 @@ public class FriendService extends FriendAbstractService {
     public void executeAcceptFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friend.acceptFollow();
+        friendRepository.save(friend);
     }
 
     @Override
@@ -50,6 +55,7 @@ public class FriendService extends FriendAbstractService {
     @Override
     public List<FriendResponseDto> executeGetFollowers(Long userId){
         List<Friend> followers = friendRepository.findByFollower(userId);
+        followers.forEach(friend -> log.info("Friend Data: {}", friend));
         return followers.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
@@ -58,6 +64,7 @@ public class FriendService extends FriendAbstractService {
     @Override
     public List<FriendResponseDto> executeGetFollowees(Long userId) {
         List<Friend> followees = friendRepository.findByFollowee(userId); //
+        followees.forEach(friend -> log.info("Friend Data: {}", friend));
         return followees.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
@@ -66,6 +73,19 @@ public class FriendService extends FriendAbstractService {
     @Override
     public List<FriendResponseDto> executeGetFriends(Long userId) {
         List<Friend> friends = friendRepository.findFriendsByUserId(userId);
+        if (friends.isEmpty()) {
+            log.warn("No friends found for userId={} with query condition", userId);
+        } else {
+            friends.forEach(friend -> log.info("Friend found: {}", friend));
+        }
+        friends.stream().forEach(friend -> {
+            log.info("Friend Id: {}, Follower: {}, Followee: {}, Follow: {}",
+                    friend.getId(),
+                    friend.getFollower().getId(),
+                    friend.getFollowee().getId(),
+                    friend.getFollow()
+            );
+        });
         return friends.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
@@ -81,16 +101,7 @@ public class FriendService extends FriendAbstractService {
     validator
      */
 
-    //유저 유효성 검증
-    @Override
-    protected void validateUser(Long userId){
-        if(userId == null){
-            throw new CustomException(ErrorCode.LOGIN_REQUIRED);
-        }
-        userRepository.findActiveUserById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
-
+    //불리언 형 오류 반환 확인
     @Override
     protected Boolean validateRelation(Long friendId, Long userId) {
         return Boolean.TRUE.equals(friendRepository.findFollowByFollowerIdAndFolloweeId(friendId, userId));
@@ -126,6 +137,13 @@ public class FriendService extends FriendAbstractService {
 
         if (!friend.getFollowee().getId().equals(userId) && !friend.getFollower().getId().equals(userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN_OPERATION);
+        }
+    }
+
+    @Override
+    protected void validateSelfRequest(Long friendId, Long userId) {
+        if (friendId.equals(userId)) {
+            throw new CustomException(ErrorCode.SELF_REQUEST_NOT_ALLOWED);
         }
     }
 

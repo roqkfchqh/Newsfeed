@@ -5,11 +5,13 @@ import com.example.newsfeed.service.FriendService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/friends")
@@ -41,7 +43,7 @@ public class FriendController {
     @PatchMapping("/{relationId}/accept")
     public ResponseEntity<String> acceptFriend(
             @PathVariable("relationId") Long relationId,
-            @RequestBody HttpServletRequest request
+            HttpServletRequest request
     ) {
         Long userId = getUserId(request);
         friendService.acceptFriend(relationId, userId);
@@ -60,7 +62,7 @@ public class FriendController {
     }
 
     //친구 목록 불러오기
-    @GetMapping
+    @GetMapping("/connection")
     public ResponseEntity<List<FriendResponseDto>> getFriends(
             HttpServletRequest request
     ){
@@ -89,6 +91,8 @@ public class FriendController {
             HttpServletRequest request
     ) {
         Long userId = getUserId(request);
+        List<FriendResponseDto> response = friendService.getFollowees(userId);
+        response.forEach(dto -> log.info("Response DTO: {}", dto));
         return ResponseEntity.ok(friendService.getFollowees(userId));
     }
 

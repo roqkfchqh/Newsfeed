@@ -8,7 +8,7 @@ import com.example.newsfeed.exception.ErrorCode;
 import com.example.newsfeed.mapper.AuthMapper;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.UserRepository;
-import com.example.newsfeed.service.validate_template.AuthAbstractService;
+import com.example.newsfeed.service.template.AuthAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
