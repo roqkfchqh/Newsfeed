@@ -12,8 +12,6 @@ import com.example.newsfeed.service.template.AuthAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService extends AuthAbstractService {
@@ -33,43 +31,32 @@ public class AuthService extends AuthAbstractService {
 
     @Override
     protected Long executeLogin(Long userId) {
-        return getNotDeletedUserById(userId).getId();
+        return getUserById(userId).getId();
     }
 
     // validator
     @Override
     protected void validateExistUserEmail(String email) {
-        Optional<User> checkUser = this.userRepository.findByEmail(email);
-
-        if (checkUser.isPresent()) {
+        if (this.userRepository.existsByEmail(email)) {
             throw new CustomException(ErrorCode.ALREADY_USED_EMAIL);
         }
     }
 
     @Override
-    protected void validateUserPassword(Long userId, String currentPassword) {
-        String findHashedPassword = getUserById(userId).getPassword();
-
-        if (!encoder.matches(currentPassword, findHashedPassword)) {
+    protected void validateUserPassword(String currentPassword, String hashedPassword) {
+        if (!encoder.matches(currentPassword, hashedPassword)) {
             throw new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD);
         }
     }
 
     @Override
-    protected Long getUserIdByEmail(String email) {
-        User user = userRepository.findByEmail(email)
+    protected User getUserByEmail(String email) {
+        return userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD));
-
-        return user.getId();
     }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
-
-    private User getNotDeletedUserById(Long userId) {
-        return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }

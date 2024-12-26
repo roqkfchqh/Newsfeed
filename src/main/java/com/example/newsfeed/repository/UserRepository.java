@@ -9,11 +9,12 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByIdAndDeletedAtIsNull(Long userId);
+    Optional<User> findByEmailAndDeletedAtIsNull(String email);
 
     //deletedAt이 null 인 유저 (유효한 유저) 불러오는 메서드
     @Query("SELECT u FROM User u WHERE u.id = :userId AND u.deletedAt IS NULL")
     Optional<User> findActiveUserById(@Param("userId") Long userId);
 
-    Optional<User> findByIdAndDeletedAtIsNull(Long userId);
+    boolean existsByEmail(String email);
 }

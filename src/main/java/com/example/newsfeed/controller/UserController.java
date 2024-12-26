@@ -2,6 +2,7 @@ package com.example.newsfeed.controller;
 
 import com.example.newsfeed.dto.BaseResponseDto;
 import com.example.newsfeed.dto.user.*;
+import com.example.newsfeed.mapper.BaseResponseMapper;
 import com.example.newsfeed.service.UserService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,19 +18,34 @@ public class UserController {
 
     private final UserService userService;
 
+
     /**
      * 유저(본인) 조회
      */
     @GetMapping
-    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> executeFetchUser(
+    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getCurrentUser(
             HttpServletRequest request
     ) {
+
         Long userId = SessionUserUtils.getId(request);
-        FetchUserResponseDto data = this.userService.fetchOneById(userId);
+        FetchUserResponseDto data = userService.fetchOneById(userId);
 
         return ResponseEntity
                 .ok()
-                .body(new BaseResponseDto<>(data));
+                .body(BaseResponseMapper.map(data));
+    }
+
+    /**
+     * 유저(타인) 조회
+     */
+    @GetMapping("/{userId}")
+    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getUser(
+            @PathVariable Long userId
+    ) {
+        FetchUserResponseDto data = userService.fetchOneById(userId);
+
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
     /**
@@ -41,11 +57,10 @@ public class UserController {
             HttpServletRequest request
     ) {
         Long userId = SessionUserUtils.getId(request);
-        UpdateUserNameResponseDto data = this.userService.updateUserName(userId, updateUserReqDto);
+        UpdateUserNameResponseDto data = userService.updateUserName(userId, updateUserReqDto);
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
     /**
@@ -57,12 +72,11 @@ public class UserController {
             HttpServletRequest request
     ) {
         Long userId = SessionUserUtils.getId(request);
-        this.userService.updateUserPassword(userId, updateUserPasswordRequestDto);
+        userService.updateUserPassword(userId, updateUserPasswordRequestDto);
         UserMessageResponseDto data = new UserMessageResponseDto("비밀번호가 성공적으로 수정되었습니다.");
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
     /**
@@ -74,12 +88,11 @@ public class UserController {
             HttpServletRequest request
     ) {
         Long userId = SessionUserUtils.getId(request);
-        this.userService.softDeleteUser(userId, deleteUserRequestDto);
+        userService.softDeleteUser(userId, deleteUserRequestDto);
         SessionUserUtils.invalidate(request);
         UserMessageResponseDto data = new UserMessageResponseDto("사용자가 성공적으로 삭제되었습니다.");
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 }

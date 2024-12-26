@@ -10,6 +10,6 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UpdateUserNameRequestDto {
 
-    @NotBlank @Size(min = 1, max = 4)
+    @NotBlank @Size(min = 1, max = 4, message = "이름은 1-4자 사이로 작성해 주세요.")
     private final String name;
 }

@@ -55,6 +55,7 @@ public class CommentLikeService extends CommentLikeAbstractService {
 
         comment.decreaseLikeCount();
     }
+    //본인 댓글 좋아요 안되는 기능 기능 추가
 
     @Override
     protected void validateNotAlreadyLiked(Long userId, Long commentId) {

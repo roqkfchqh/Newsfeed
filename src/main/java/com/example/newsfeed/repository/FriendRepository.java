@@ -56,4 +56,5 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     AND u2.deletedAt IS NULL
     """)
     Boolean findFollowByFollowerIdAndFolloweeId(@Param("followeeId") Long friendId, @Param("followerId")Long userId);   //is deletedAt 빠져있음
+
 }
