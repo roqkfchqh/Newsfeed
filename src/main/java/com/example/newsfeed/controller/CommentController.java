@@ -1,7 +1,10 @@
 package com.example.newsfeed.controller;
 
+import com.example.newsfeed.dto.BaseResponseDto;
+import com.example.newsfeed.dto.comment.CommentMessageResponseDto;
 import com.example.newsfeed.dto.comment.CommentRequestDto;
 import com.example.newsfeed.dto.comment.CommentResponseDto;
+import com.example.newsfeed.mapper.BaseResponseMapper;
 import com.example.newsfeed.service.CommentLikeService;
 import com.example.newsfeed.service.CommentService;
 import com.example.newsfeed.session.SessionUserUtils;
@@ -22,69 +25,71 @@ public class CommentController {
 
     // Create a new comment (POST /comments)
     @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(
+    public ResponseEntity<BaseResponseDto<CommentResponseDto>> createComment(
             @RequestBody CommentRequestDto requestDto,
             HttpServletRequest request) {
         Long userId = getUserId(request);
         CommentResponseDto responseDto = commentService.createComment(userId, requestDto);
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(BaseResponseMapper.map(responseDto));
     }
 
     // Update an existing comment (PATCH /comments/{commentId})
     @PatchMapping("/{commentId}")
-    public ResponseEntity<CommentResponseDto> updateComment(
+    public ResponseEntity<BaseResponseDto<CommentResponseDto>> updateComment(
             @PathVariable Long commentId,
             @RequestBody CommentRequestDto requestDto,
             HttpServletRequest request) {
         Long userId = getUserId(request);
         CommentResponseDto responseDto = commentService.updateComment(userId, commentId, requestDto);
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(BaseResponseMapper.map(responseDto));
     }
 
     // Read a specific comment (GET /comments/{commentId})
     @GetMapping("/{commentId}")
-    public ResponseEntity<CommentResponseDto> getComment(
+    public ResponseEntity<BaseResponseDto<CommentResponseDto>> getComment(
             @PathVariable Long commentId) {
         CommentResponseDto responseDto = commentService.getComment(commentId);
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(BaseResponseMapper.map(responseDto));
     }
 
     // Get all comments (GET /comments)
     @GetMapping
-    public ResponseEntity<List<CommentResponseDto>> getAllComments() {
+    public ResponseEntity<BaseResponseDto<List<CommentResponseDto>>> getAllComments() {
         List<CommentResponseDto> responseDtos = commentService.getAllComments();
-        return ResponseEntity.ok(responseDtos);
+        return ResponseEntity.ok(BaseResponseMapper.map(responseDtos));
     }
-
 
     // Like a comment (POST /comments/{commentId}/likes)
     @PostMapping("/{commentId}/likes")
-    public ResponseEntity<String> likeComment(
+    public ResponseEntity<BaseResponseDto<CommentMessageResponseDto>> likeComment(
             @PathVariable Long commentId,
             HttpServletRequest request) {
         Long userId = getUserId(request);
         commentLikeService.likeComment(userId, commentId);
-        return ResponseEntity.ok("좋아요가 성공적으로 추가되었습니다.");
+        CommentMessageResponseDto messageResponseDto = new CommentMessageResponseDto("좋아요가 성공적으로 추가되었습니다.");
+        return ResponseEntity.ok(BaseResponseMapper.map(messageResponseDto));
     }
 
     // Unlike a comment (DELETE /comments/{commentId}/likes)
     @DeleteMapping("/{commentId}/likes")
-    public ResponseEntity<String> unlikeComment(
+    public ResponseEntity<BaseResponseDto<CommentMessageResponseDto>> unlikeComment(
             @PathVariable Long commentId,
             HttpServletRequest request) {
         Long userId = getUserId(request);
         commentLikeService.unlikeComment(userId, commentId);
-        return ResponseEntity.ok("좋아요가 성공적으로 삭제되었습니다.");
+        CommentMessageResponseDto messageResponseDto = new CommentMessageResponseDto("좋아요가 성공적으로 삭제되었습니다.");
+        return ResponseEntity.ok(BaseResponseMapper.map(messageResponseDto));
     }
 
     // Delete a comment (DELETE /comments/{commentId})
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<String> deleteComment(
+    public ResponseEntity<BaseResponseDto<CommentMessageResponseDto>> deleteComment(
             @PathVariable Long commentId,
             HttpServletRequest request) {
         Long userId = getUserId(request);
         commentService.deleteComment(userId, commentId);
-        return ResponseEntity.ok("댓글이 성공적으로 삭제되었습니다.");
+        CommentMessageResponseDto messageResponseDto = new CommentMessageResponseDto("댓글이 성공적으로 삭제되었습니다.");
+        return ResponseEntity.ok(BaseResponseMapper.map(messageResponseDto));
     }
 
     /*
@@ -94,3 +99,5 @@ public class CommentController {
         return SessionUserUtils.getId(request);
     }
 }
+
+

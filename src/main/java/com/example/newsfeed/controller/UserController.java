@@ -2,6 +2,7 @@ package com.example.newsfeed.controller;
 
 import com.example.newsfeed.dto.BaseResponseDto;
 import com.example.newsfeed.dto.user.*;
+import com.example.newsfeed.mapper.BaseResponseMapper;
 import com.example.newsfeed.service.UserService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ public class UserController {
 
     private final UserService userService;
 
+
     /**
      * 유저(본인) 조회
      */
@@ -24,12 +26,13 @@ public class UserController {
     public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getCurrentUser(
             HttpServletRequest request
     ) {
+
         Long userId = SessionUserUtils.getId(request);
         FetchUserResponseDto data = userService.fetchOneById(userId);
 
         return ResponseEntity
                 .ok()
-                .body(new BaseResponseDto<>(data));
+                .body(BaseResponseMapper.map(data));
     }
 
     /**
@@ -41,9 +44,8 @@ public class UserController {
     ) {
         FetchUserResponseDto data = userService.fetchOneById(userId);
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
     /**
@@ -57,9 +59,8 @@ public class UserController {
         Long userId = SessionUserUtils.getId(request);
         UpdateUserNameResponseDto data = userService.updateUserName(userId, updateUserReqDto);
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
     /**
@@ -74,9 +75,8 @@ public class UserController {
         userService.updateUserPassword(userId, updateUserPasswordRequestDto);
         UserMessageResponseDto data = new UserMessageResponseDto("비밀번호가 성공적으로 수정되었습니다.");
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
     /**
@@ -92,8 +92,7 @@ public class UserController {
         SessionUserUtils.invalidate(request);
         UserMessageResponseDto data = new UserMessageResponseDto("사용자가 성공적으로 삭제되었습니다.");
 
-        return ResponseEntity
-                .ok()
-                .body(new BaseResponseDto<>(data));
+        // BaseResponseMapper 사용
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 }

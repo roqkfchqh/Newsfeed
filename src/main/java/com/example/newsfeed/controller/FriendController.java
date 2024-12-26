@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/friends")
@@ -92,7 +91,6 @@ public class FriendController {
     ) {
         Long userId = getUserId(request);
         List<FriendResponseDto> response = friendService.getFollowees(userId);
-        response.forEach(dto -> log.info("Response DTO: {}", dto));
         return ResponseEntity.ok(friendService.getFollowees(userId));
     }
 
