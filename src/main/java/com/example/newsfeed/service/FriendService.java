@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FriendService extends FriendAbstractService {
@@ -55,7 +54,6 @@ public class FriendService extends FriendAbstractService {
     @Override
     public List<FriendResponseDto> executeGetFollowers(Long userId){
         List<Friend> followers = friendRepository.findByFollower(userId);
-        followers.forEach(friend -> log.info("Friend Data: {}", friend));
         return followers.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
@@ -63,8 +61,7 @@ public class FriendService extends FriendAbstractService {
 
     @Override
     public List<FriendResponseDto> executeGetFollowees(Long userId) {
-        List<Friend> followees = friendRepository.findByFollowee(userId); //
-        followees.forEach(friend -> log.info("Friend Data: {}", friend));
+        List<Friend> followees = friendRepository.findByFollowee(userId);
         return followees.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
@@ -73,19 +70,6 @@ public class FriendService extends FriendAbstractService {
     @Override
     public List<FriendResponseDto> executeGetFriends(Long userId) {
         List<Friend> friends = friendRepository.findFriendsByUserId(userId);
-        if (friends.isEmpty()) {
-            log.warn("No friends found for userId={} with query condition", userId);
-        } else {
-            friends.forEach(friend -> log.info("Friend found: {}", friend));
-        }
-        friends.stream().forEach(friend -> {
-            log.info("Friend Id: {}, Follower: {}, Followee: {}, Follow: {}",
-                    friend.getId(),
-                    friend.getFollower().getId(),
-                    friend.getFollowee().getId(),
-                    friend.getFollow()
-            );
-        });
         return friends.stream()
                 .map(FriendMapper::toDto)
                 .collect(Collectors.toList());
