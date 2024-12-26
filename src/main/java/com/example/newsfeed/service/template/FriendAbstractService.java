@@ -9,6 +9,7 @@ import java.util.List;
 public abstract class FriendAbstractService {
 
     public final FriendResponseDto createFriend(Long friendId, Long userId) {
+        validateSelfRequest(friendId, userId);
         if(validateRelation(friendId, userId)) {
             throw new CustomException(ErrorCode.ALREADY_FRIEND);
         }
@@ -61,6 +62,7 @@ public abstract class FriendAbstractService {
     protected abstract void validateFollowExists(Long friendId, Long userId);
     protected abstract void validateAuthority(Long relationId, Long userId);    //수락 / 거절권한 확인
     protected abstract void validateDelete(Long relationId, Long userId);   //삭제권한 확인
+    protected abstract void validateSelfRequest(Long friendId, Long userId);
 
     /*
     business logic

@@ -28,12 +28,32 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     """)
     List<Friend> findFriendsByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT COUNT(f) > 0 FROM Friend f WHERE f.follower.id = :followerId AND f.followee.id = :followeeId")
-    Boolean existsByFollowerIdAndFolloweeId(@Param("followerId")Long friendId, @Param("followeeId")Long userId);
+    @Query("""
+    SELECT COUNT(f) > 0
+    FROM Friend f
+    WHERE f.follower.id = :followerId
+    AND f.followee.id = :followeeId
+    """)
+    Boolean existsByFollowerIdAndFolloweeId(@Param("followeeId")Long friendId, @Param("followerId")Long userId);    //is deletedAt 빠져있음
 
-    @Query("SELECT f.follow FROM Friend f WHERE f.id = :relationId")
-    Boolean findFollowById(@Param("relationId") Long relationId);
+    @Query("""
+    SELECT f.follow
+    FROM Friend f
+    JOIN f.followee u
+    WHERE f.id = :relationId
+    AND u.deletedAt IS NULL
+    """)
+    Boolean findFollowById(@Param("relationId") Long relationId);   //is deletedAt 빠져있음
 
-    @Query("SELECT f.follow FROM Friend f WHERE f.follower.id = :followerId AND f.followee.id = :followeeId")
-    Boolean findFollowByFollowerIdAndFolloweeId(@Param("followerId") Long friendId, @Param("followeeId")Long userId);
+    @Query("""
+    SELECT f.follow
+    FROM Friend f
+    JOIN f.follower u1
+    JOIN f.followee u2
+    WHERE f.follower.id = :followerId
+    AND f.followee.id = :followeeId
+    AND u1.deletedAt IS NULL
+    AND u2.deletedAt IS NULL
+    """)
+    Boolean findFollowByFollowerIdAndFolloweeId(@Param("followeeId") Long friendId, @Param("followerId")Long userId);   //is deletedAt 빠져있음
 }

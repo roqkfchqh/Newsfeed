@@ -137,6 +137,13 @@ public class FriendService extends FriendAbstractService {
         }
     }
 
+    @Override
+    protected void validateSelfRequest(Long friendId, Long userId) {
+        if (friendId.equals(userId)) {
+            throw new CustomException(ErrorCode.SELF_REQUEST_NOT_ALLOWED);
+        }
+    }
+
     /*
     helper method
      */
