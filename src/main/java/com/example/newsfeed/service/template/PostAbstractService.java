@@ -32,6 +32,7 @@ public abstract class PostAbstractService {
 
     //delete
     public final void deletePost(Long postId, Long userId) {
+        //validate 로직 순서 확인
         validateAuthority(postId, userId);
         executeDeletePost(postId, userId);
     }

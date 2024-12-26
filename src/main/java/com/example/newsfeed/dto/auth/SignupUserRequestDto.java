@@ -12,7 +12,7 @@ import lombok.Getter;
 public class SignupUserRequestDto {
 
     @NotBlank
-    @Size(min = 1, max = 4)
+    @Size(min = 1, max = 4) //메세지 달기
     private final String name;
 
     @NotBlank @Size(min = 5, max = 50)
