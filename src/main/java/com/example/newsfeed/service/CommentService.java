@@ -2,9 +2,9 @@ package com.example.newsfeed.service;
 
 import com.example.newsfeed.dto.comment.CommentRequestDto;
 import com.example.newsfeed.dto.comment.CommentResponseDto;
-import com.example.newsfeed.mapper.CommentMapper;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
+import com.example.newsfeed.mapper.CommentMapper;
 import com.example.newsfeed.model.Comment;
 import com.example.newsfeed.model.Post;
 import com.example.newsfeed.model.User;
@@ -38,7 +38,7 @@ public class CommentService extends CommentAbstractService {
         User user = getUser(userId);
         Post post = getPost(requestDto);
 
-        Comment comment = CommentMapper.toEntity(user, post, requestDto.getContents());
+        Comment comment = CommentMapper.toEntity(user, post, requestDto.getContent());
 
         return CommentMapper.toDto(commentRepository.save(comment));
     }
@@ -50,7 +50,7 @@ public class CommentService extends CommentAbstractService {
         validateHelper.comment(commentId);
 
         Comment comment = getCommentById(commentId);
-        comment.updateContent(requestDto.getContents());
+        comment.updateContent(requestDto.getContent());
         return CommentMapper.toDto(commentRepository.save(comment));
     }
 
@@ -93,7 +93,7 @@ public class CommentService extends CommentAbstractService {
     /*
     helper method
      */
-
+    
     private User getUser(Long userId) {
         return userRepository.findActiveUserById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
