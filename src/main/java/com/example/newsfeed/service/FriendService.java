@@ -8,7 +8,7 @@ import com.example.newsfeed.model.Friend;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.FriendRepository;
 import com.example.newsfeed.repository.UserRepository;
-import com.example.newsfeed.service.validate_template.FriendAbstractService;
+import com.example.newsfeed.service.template.FriendAbstractService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -98,16 +98,6 @@ public class FriendService extends FriendAbstractService {
     /*
     validator
      */
-
-    //유저 유효성 검증
-    @Override
-    protected void validateUser(Long userId){
-        if(userId == null){
-            throw new CustomException(ErrorCode.LOGIN_REQUIRED);
-        }
-        userRepository.findActiveUserById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-    }
 
     @Override
     protected Boolean validateRelation(Long friendId, Long userId) {

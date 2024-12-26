@@ -61,6 +61,7 @@ public abstract class FriendAbstractService {
     protected abstract void validateFollowExists(Long friendId, Long userId);
     protected abstract void validateAuthority(Long relationId, Long userId);    //수락 / 거절권한 확인
     protected abstract void validateDelete(Long relationId, Long userId);   //삭제권한 확인
+    protected abstract void validateSelfRequest(Long relationId, Long userId);
 
     /*
     business logic

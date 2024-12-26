@@ -29,11 +29,11 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     List<Friend> findFriendsByUserId(@Param("userId") Long userId);
 
     @Query("SELECT COUNT(f) > 0 FROM Friend f WHERE f.follower.id = :followerId AND f.followee.id = :followeeId")
-    Boolean existsByFollowerIdAndFolloweeId(@Param("followerId")Long friendId, @Param("followeeId")Long userId);
+    Boolean existsByFollowerIdAndFolloweeId(@Param("followerId")Long friendId, @Param("followeeId")Long userId);    //is deletedAt 빠져있음
 
     @Query("SELECT f.follow FROM Friend f WHERE f.id = :relationId")
-    Boolean findFollowById(@Param("relationId") Long relationId);
+    Boolean findFollowById(@Param("relationId") Long relationId);   //is deletedAt 빠져있음
 
     @Query("SELECT f.follow FROM Friend f WHERE f.follower.id = :followerId AND f.followee.id = :followeeId")
-    Boolean findFollowByFollowerIdAndFolloweeId(@Param("followerId") Long friendId, @Param("followeeId")Long userId);
+    Boolean findFollowByFollowerIdAndFolloweeId(@Param("followerId") Long friendId, @Param("followeeId")Long userId);   //is deletedAt 빠져있음
 }
