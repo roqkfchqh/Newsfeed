@@ -7,7 +7,7 @@ import com.example.newsfeed.model.User;
 public class UserMapper {
 
     // Entity to Dto
-    public static UpdateUserNameResponseDto toUpdateUserBaneResponseDto(User user) {
+    public static UpdateUserNameResponseDto toUpdateUserNameResponseDto(User user) {
         return UpdateUserNameResponseDto.builder()
                 .updatedName(user.getName())
                 .updatedAt(user.getUpdatedAt())

@@ -42,7 +42,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<BaseResponseDto<AuthMessageResponseDto>> login(
-            @RequestBody LoginUserRequestDto loginUserRequestDto,
+            @Valid @RequestBody LoginUserRequestDto loginUserRequestDto,
             HttpServletRequest request
     ) {
         Long userId = authService.login(loginUserRequestDto);

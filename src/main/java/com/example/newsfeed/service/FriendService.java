@@ -21,10 +21,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FriendService extends FriendAbstractService {
+    //friend 오류 수정 확인
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
 
+    //중복으로 좋아요 보내 짐
     @Override
     public FriendResponseDto executeCreateFriend(Long friendId, Long userId){
         User user = getUser(userId);
@@ -99,6 +101,7 @@ public class FriendService extends FriendAbstractService {
     validator
      */
 
+    //불리언 형 오류 반환 확인
     @Override
     protected Boolean validateRelation(Long friendId, Long userId) {
         return Boolean.TRUE.equals(friendRepository.findFollowByFollowerIdAndFolloweeId(friendId, userId));

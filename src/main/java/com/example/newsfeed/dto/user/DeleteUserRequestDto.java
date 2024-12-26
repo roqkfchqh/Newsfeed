@@ -10,6 +10,6 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeleteUserRequestDto {
 
-    @NotBlank @Size(min = 6, max = 15)
+    @NotBlank @Size(min = 6, max = 15, message = "비밀번호는 6-15자 사이입니다.")
     private final String currentPassword;
 }
