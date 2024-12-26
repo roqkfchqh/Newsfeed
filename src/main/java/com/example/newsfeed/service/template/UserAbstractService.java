@@ -1,6 +1,7 @@
 package com.example.newsfeed.service.template;
 
 import com.example.newsfeed.dto.user.*;
+import com.example.newsfeed.model.User;
 
 public abstract class UserAbstractService {
 
@@ -9,7 +10,8 @@ public abstract class UserAbstractService {
      * 유저 이름 갱신
      */
     public final UpdateUserNameResponseDto updateUserName(Long userId, UpdateUserNameRequestDto updateUserNameRequestDto) {
-        return executeUpdateUserName(userId, updateUserNameRequestDto);
+        User user = getNotDeletedUserById(userId);
+        return executeUpdateUserName(user, updateUserNameRequestDto.getName());
     }
 
     /**
@@ -23,25 +25,29 @@ public abstract class UserAbstractService {
      * 유저 비밀번호 갱신
      */
     public final void updateUserPassword(Long userId, UpdateUserPasswordRequestDto updateUserPasswordRequestDto) {
-        validateUserPassword(userId, updateUserPasswordRequestDto.getCurrentPassword());
-        executeUpdateUserPassword(userId, updateUserPasswordRequestDto);
+        User user = getNotDeletedUserById(userId);
+        validateUserPassword(user, updateUserPasswordRequestDto.getCurrentPassword());
+        executeUpdateUserPassword(user, updateUserPasswordRequestDto.getUpdatePassword());
     }
 
     /**
      * 유저 삭제
      */
     public final void softDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto) {
-        validateUserPassword(userId, deleteUserRequestDto.getCurrentPassword());
-        executeSoftDeleteUser(userId, deleteUserRequestDto);
+        User user = getNotDeletedUserById(userId);
+        validateUserPassword(user, deleteUserRequestDto.getCurrentPassword());
+        executeSoftDeleteUser(user);
     }
 
-    // validator
-    protected abstract void validateUserPassword(Long userId, String currentPassword);
+    // getter
+    protected abstract User getNotDeletedUserById(Long userId);
 
+    // validator
+    protected abstract void validateUserPassword(User user, String currentPassword);
 
     // business logic
-    protected abstract UpdateUserNameResponseDto executeUpdateUserName(Long userId, UpdateUserNameRequestDto updateUserReqDto);
-    protected abstract void executeUpdateUserPassword(Long userId, UpdateUserPasswordRequestDto updateUserPasswordRequestDto);
+    protected abstract UpdateUserNameResponseDto executeUpdateUserName(User user, String name);
+    protected abstract void executeUpdateUserPassword(User user, String updatedPassword);
     protected abstract FetchUserResponseDto executeFetchOneById(Long userId);
-    protected abstract void executeSoftDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto);
+    protected abstract void executeSoftDeleteUser(User user);
 }

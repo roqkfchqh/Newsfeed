@@ -12,7 +12,7 @@ import lombok.Getter;
 public class SignupUserRequestDto {
 
     @NotBlank
-    @Size(min = 1, max = 4) //메세지 달기
+    @Size(min = 1, max = 4, message = "이름은 1-4자 사이로 작성해 주세요.")
     private final String name;
 
     @NotBlank @Size(min = 5, max = 50)
@@ -20,6 +20,6 @@ public class SignupUserRequestDto {
             message = "올바른 이메일 형식이 아닙니다.")
     private final String email;
 
-    @NotBlank @Size(min = 6, max = 15)
+    @NotBlank @Size(min = 6, max = 15, message = "비밀번호는 6-15자 사이입니다.")
     private final String password;
 }

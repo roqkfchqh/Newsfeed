@@ -21,45 +21,41 @@ public class UserService extends UserAbstractService {
 
     @Override
     @Transactional
-    protected UpdateUserNameResponseDto executeUpdateUserName(Long userId, UpdateUserNameRequestDto updateUserReqDto) {
-        User user = getUserById(userId);
-        user.updateUserName(updateUserReqDto.getName());
-        return UserMapper.toUpdateUserBaneResponseDto(user);
+    protected UpdateUserNameResponseDto executeUpdateUserName(User user, String name) {
+        user.updateUserName(name);
+        return UserMapper.toUpdateUserNameResponseDto(user);
     }
 
     @Override
     protected FetchUserResponseDto executeFetchOneById(Long userId) {
-        User user = getUserById(userId);
+        User user = getNotDeletedUserById(userId);
         return UserMapper.toFetchUserResponseDto(user);
     }
 
     @Override
     @Transactional
-    protected void executeUpdateUserPassword(Long userId, UpdateUserPasswordRequestDto updateUserPasswordRequestDto) {
-        String updatedHashedPassword = encoder.encode(updateUserPasswordRequestDto.getUpdatePassword());
-        User user = getUserById(userId);
+    protected void executeUpdateUserPassword(User user, String updatedPassword) {
+        String updatedHashedPassword = encoder.encode(updatedPassword);
         user.updatePassword(updatedHashedPassword);
     }
 
     @Override
     @Transactional
-    protected void executeSoftDeleteUser(Long userId, DeleteUserRequestDto deleteUserRequestDto) {
-        User user = getUserById(userId);
-        user.softDelete();
+    protected void executeSoftDeleteUser(User user) {
+        userRepository.deleteById(user.getId());
     }
 
     // validator
     @Override
-    protected void validateUserPassword(Long userId, String currentPassword) {
-        String findHashedPassword = getUserById(userId).getPassword();
-
-        if (!encoder.matches(currentPassword, findHashedPassword)) {
+    protected void validateUserPassword(User user, String currentPassword) {
+        if (!encoder.matches(currentPassword, user.getPassword())) {
             throw new CustomException(ErrorCode.WRONG_PASSWORD);
         }
     }
 
-    private User getUserById(Long userId) {
-        return userRepository.findActiveUserById(userId)
+    @Override
+    protected User getNotDeletedUserById(Long userId) {
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }
