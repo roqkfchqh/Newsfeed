@@ -33,9 +33,8 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     FROM Friend f
     WHERE f.follower.id = :followerId
     AND f.followee.id = :followeeId
-    AND f.deletedAt IS NULL
     """)
-    Boolean existsByFollowerIdAndFolloweeId(@Param("followerId")Long friendId, @Param("followeeId")Long userId);    //is deletedAt 빠져있음
+    Boolean existsByFollowerIdAndFolloweeId(@Param("followeeId")Long friendId, @Param("followerId")Long userId);    //is deletedAt 빠져있음
 
     @Query("""
     SELECT f.follow
@@ -56,5 +55,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     AND u1.deletedAt IS NULL
     AND u2.deletedAt IS NULL
     """)
-    Boolean findFollowByFollowerIdAndFolloweeId(@Param("followerId") Long friendId, @Param("followeeId")Long userId);   //is deletedAt 빠져있음
+    Boolean findFollowByFollowerIdAndFolloweeId(@Param("followeeId") Long friendId, @Param("followerId")Long userId);   //is deletedAt 빠져있음
+
 }

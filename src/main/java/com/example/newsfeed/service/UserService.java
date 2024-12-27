@@ -22,42 +22,50 @@ public class UserService extends UserAbstractService {
 
     @Override
     @Transactional
-    protected UpdateUserNameResponseDto executeUpdateUserName(User user, String name) {
-        user.updateUserName(name);
+    protected UpdateUserNameResponseDto executeUpdateUserName(Long userId, String updateName) {
+        User user = getUserById(userId);
+        user.updateUserName(updateName);
         return UserMapper.toUpdateUserNameResponseDto(user);
     }
 
     @Override
     @Transactional(readOnly = true)
     protected FetchUserResponseDto executeFetchOneById(Long userId) {
-        User user = getNotDeletedUserById(userId);
+        User user = validateUserId(userId);
         return UserMapper.toFetchUserResponseDto(user);
     }
 
     @Override
     @Transactional
-    protected void executeUpdateUserPassword(User user, String updatedPassword) {
+    protected void executeUpdateUserPassword(Long userId, String updatedPassword) {
+        User user = getUserById(userId);
         String updatedHashedPassword = encoder.encode(updatedPassword);
         user.updatePassword(updatedHashedPassword);
     }
 
     @Override
-    @Transactional
-    protected void executeSoftDeleteUser(User user) {
+    protected void executeSoftDeleteUser(Long userId) {
+        User user = getUserById(userId);
         userRepository.deleteById(user.getId());
     }
 
     // validator
     @Override
-    protected void validateUserPassword(User user, String currentPassword) {
+    protected void validateUserPassword(Long userId, String currentPassword) {
+        User user = getUserById(userId);
         if (!encoder.matches(currentPassword, user.getPassword())) {
             throw new CustomException(ErrorCode.WRONG_PASSWORD);
         }
     }
 
     @Override
-    protected User getNotDeletedUserById(Long userId) {
+    protected User validateUserId(Long userId) {
         return userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }

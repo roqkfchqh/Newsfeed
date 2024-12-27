@@ -8,13 +8,11 @@ import com.example.newsfeed.service.FriendService;
 import com.example.newsfeed.session.SessionUserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/friends")
@@ -83,9 +81,8 @@ public class FriendController {
             HttpServletRequest request
     ) {
         Long userId = getUserId(request);
-        List<FriendResponseDto> followees = friendService.getFollowees(userId);
-        followees.forEach(dto -> log.info("Response DTO: {}", dto));
-        return ResponseEntity.ok(BaseResponseMapper.map(followees));
+        List<FriendResponseDto> response = friendService.getFollowees(userId);
+        return ResponseEntity.ok(friendService.getFollowees(userId));
     }
 
     // Delete a friend relationship (DELETE /friends/{relationId})
