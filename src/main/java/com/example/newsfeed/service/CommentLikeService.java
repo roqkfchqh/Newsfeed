@@ -1,8 +1,8 @@
 package com.example.newsfeed.service;
 
-import com.example.newsfeed.mapper.CommentMapper;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
+import com.example.newsfeed.mapper.CommentMapper;
 import com.example.newsfeed.model.Comment;
 import com.example.newsfeed.model.CommentLike;
 import com.example.newsfeed.model.User;
@@ -55,7 +55,11 @@ public class CommentLikeService extends CommentLikeAbstractService {
 
         comment.decreaseLikeCount();
     }
-    //본인 댓글 좋아요 안되는 기능 기능 추가
+
+
+    /*
+    validator
+     */
 
     @Override
     protected void validateNotAlreadyLiked(Long userId, Long commentId) {

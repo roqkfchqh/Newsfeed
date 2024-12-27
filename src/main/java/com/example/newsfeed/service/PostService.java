@@ -7,10 +7,8 @@ import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
 import com.example.newsfeed.mapper.PostMapper;
 import com.example.newsfeed.model.Post;
-import com.example.newsfeed.model.PostLike;
 import com.example.newsfeed.model.User;
 import com.example.newsfeed.repository.CommentRepository;
-import com.example.newsfeed.repository.PostLikeRepository;
 import com.example.newsfeed.repository.PostRepository;
 import com.example.newsfeed.repository.UserRepository;
 import com.example.newsfeed.service.template.PostAbstractService;
@@ -34,9 +32,9 @@ public class PostService extends PostAbstractService {
     private final CommentRepository commentRepository;
     private final ValidateHelper validateHelper;
 
-    //create
     @Override
-    protected PostResponseDto executeCreatePost(PostRequestDto dto, Long userId){
+    @Transactional
+    protected PostResponseDto executeCreatePost(PostRequestDto dto, Long userId) {
         validateHelper.user(userId);
 
         User user = getUser(userId);
@@ -46,9 +44,9 @@ public class PostService extends PostAbstractService {
         return PostMapper.toDto(post);
     }
 
-    //get friends posts
     @Override
-    protected List<PostResponseDto> executeGetPosts(Long userId, Sort sort){
+    @Transactional(readOnly = true)
+    protected List<PostResponseDto> executeGetPosts(Long userId, Sort sort) {
         validateHelper.user(userId);
 
         List<Post> posts = postRepository.findPostsByFriends(userId, sort);
@@ -57,9 +55,9 @@ public class PostService extends PostAbstractService {
                 .collect(Collectors.toList());
     }
 
-    //read
     @Override
-    protected PostResponseDto executeReadPost(Long postId, Pageable pageable){
+    @Transactional(readOnly = true)
+    protected PostResponseDto executeReadPost(Long postId, Pageable pageable) {
         validateHelper.post(postId);
 
         Post post = getPost(postId);
@@ -68,10 +66,9 @@ public class PostService extends PostAbstractService {
         return PostMapper.toDto(post, comments);
     }
 
-    //update
     @Override
     @Transactional
-    protected PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId){
+    protected PostResponseDto executeUpdatePost(Long postId, PostRequestDto dto, Long userId) {
         validateHelper.user(userId);
         validateHelper.post(postId);
 
@@ -81,9 +78,9 @@ public class PostService extends PostAbstractService {
         return PostMapper.toDto(post);
     }
 
-    //delete
     @Override
-    protected void executeDeletePost(Long postId ,Long userId){
+    @Transactional
+    protected void executeDeletePost(Long postId, Long userId) {
         validateHelper.user(userId);
         validateHelper.post(postId);
 
@@ -95,15 +92,15 @@ public class PostService extends PostAbstractService {
     */
 
     @Override
-    protected void validateAuthority(Long postId, Long userId){
+    protected void validateAuthority(Long postId, Long userId) {
         Post post = getPost(postId);
-        if(!Objects.equals(post.getUser().getId(), userId)){
+        if (!Objects.equals(post.getUser().getId(), userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN_OPERATION);
         }
     }
 
     /*
-    helper method(repository)
+    helper method
      */
 
     private Post getPost(Long postId) {
@@ -111,7 +108,7 @@ public class PostService extends PostAbstractService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CONTENT_NOT_FOUND));
     }
 
-    private User getUser(Long userId){
+    private User getUser(Long userId) {
         return userRepository.findActiveUserById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }

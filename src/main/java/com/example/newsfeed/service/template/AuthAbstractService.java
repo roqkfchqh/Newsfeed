@@ -7,18 +7,13 @@ import com.example.newsfeed.model.User;
 
 public abstract class AuthAbstractService {
 
-    // service logic
-    /**
-     * 유저 생성
-     */
+    // Create a new user (signup)
     public final SignupUserResponseDto signup(SignupUserRequestDto signupUserRequestDto) {
         validateExistUserEmail(signupUserRequestDto.getEmail());
         return executeSignup(signupUserRequestDto);
     }
 
-    /**
-     * 로그인
-     */
+    // Login a user
     public final Long login(LoginUserRequestDto loginUserRequestDto) {
         User user = getUserByEmail(loginUserRequestDto.getEmail());
         validateUserPassword(loginUserRequestDto.getPassword(), user.getPassword());
@@ -30,9 +25,11 @@ public abstract class AuthAbstractService {
 
     // validator
     protected abstract void validateExistUserEmail(String email);
+
     protected abstract void validateUserPassword(String currentPassword, String hashedPassword);
 
     // business logic
     protected abstract SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto);
+
     protected abstract Long executeLogin(Long userId);
 }

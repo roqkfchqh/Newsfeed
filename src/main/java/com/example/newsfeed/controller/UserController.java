@@ -18,81 +18,45 @@ public class UserController {
 
     private final UserService userService;
 
-
-    /**
-     * 유저(본인) 조회
-     */
+    // Get current user (GET /users)
     @GetMapping
-    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getCurrentUser(
-            HttpServletRequest request
-    ) {
-
+    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getCurrentUser(HttpServletRequest request) {
         Long userId = SessionUserUtils.getId(request);
         FetchUserResponseDto data = userService.fetchOneById(userId);
-
-        return ResponseEntity
-                .ok()
-                .body(BaseResponseMapper.map(data));
-    }
-
-    /**
-     * 유저(타인) 조회
-     */
-    @GetMapping("/{userId}")
-    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getUser(
-            @PathVariable Long userId
-    ) {
-        FetchUserResponseDto data = userService.fetchOneById(userId);
-
-        // BaseResponseMapper 사용
         return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
-    /**
-     * 유저 이름 수정
-     */
+    // Get specific user (GET /users/{userId})
+    @GetMapping("/{userId}")
+    public ResponseEntity<BaseResponseDto<FetchUserResponseDto>> getUser(@PathVariable Long userId) {
+        FetchUserResponseDto data = userService.fetchOneById(userId);
+        return ResponseEntity.ok().body(BaseResponseMapper.map(data));
+    }
+
+    // Update user name (PATCH /users)
     @PatchMapping
-    public ResponseEntity<BaseResponseDto<UpdateUserNameResponseDto>> executeUpdateUserName(
-            @Valid @RequestBody UpdateUserNameRequestDto updateUserReqDto,
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<BaseResponseDto<UpdateUserNameResponseDto>> executeUpdateUserName(@Valid @RequestBody UpdateUserNameRequestDto updateUserReqDto, HttpServletRequest request) {
         Long userId = SessionUserUtils.getId(request);
         UpdateUserNameResponseDto data = userService.updateUserName(userId, updateUserReqDto);
-
-        // BaseResponseMapper 사용
         return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
-    /**
-     * 유저 비밀번호 수정
-     */
+    // Update user password (PATCH /users/password)
     @PatchMapping("/password")
-    public ResponseEntity<BaseResponseDto<UserMessageResponseDto>> executeUpdateUserPassword(
-            @Valid @RequestBody UpdateUserPasswordRequestDto updateUserPasswordRequestDto,
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<BaseResponseDto<UserMessageResponseDto>> executeUpdateUserPassword(@Valid @RequestBody UpdateUserPasswordRequestDto updateUserPasswordRequestDto, HttpServletRequest request) {
         Long userId = SessionUserUtils.getId(request);
         userService.updateUserPassword(userId, updateUserPasswordRequestDto);
         UserMessageResponseDto data = new UserMessageResponseDto("비밀번호가 성공적으로 수정되었습니다.");
-
-        // BaseResponseMapper 사용
         return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
-    /**
-     * 유저 삭제(회원 탈퇴)
-     */
+    // Delete user (Account Deletion) (DELETE /users)
     @DeleteMapping
-    public ResponseEntity<BaseResponseDto<UserMessageResponseDto>> executeSoftDeleteUser(
-            @Valid @RequestBody DeleteUserRequestDto deleteUserRequestDto,
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<BaseResponseDto<UserMessageResponseDto>> executeSoftDeleteUser(@Valid @RequestBody DeleteUserRequestDto deleteUserRequestDto, HttpServletRequest request) {
         Long userId = SessionUserUtils.getId(request);
         userService.softDeleteUser(userId, deleteUserRequestDto);
         SessionUserUtils.invalidate(request);
         UserMessageResponseDto data = new UserMessageResponseDto("사용자가 성공적으로 삭제되었습니다.");
-
-        // BaseResponseMapper 사용
         return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 }

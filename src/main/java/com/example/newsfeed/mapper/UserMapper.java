@@ -6,7 +6,7 @@ import com.example.newsfeed.model.User;
 
 public class UserMapper {
 
-    // Entity to Dto
+    // User Entity to Update Username Response Dto
     public static UpdateUserNameResponseDto toUpdateUserNameResponseDto(User user) {
         return UpdateUserNameResponseDto.builder()
                 .updatedName(user.getName())
@@ -14,6 +14,7 @@ public class UserMapper {
                 .build();
     }
 
+    // User Entity to Fetch User Response Dto
     public static FetchUserResponseDto toFetchUserResponseDto(User user) {
         return FetchUserResponseDto.builder()
                 .userName(user.getName())

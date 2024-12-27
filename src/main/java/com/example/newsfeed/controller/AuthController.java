@@ -24,48 +24,35 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /**
-     * 유저 생성(회원 가입)
-     */
+    // Create a new user (Sign up) (POST /auth/signup)
     @PostMapping("/signup")
-    public ResponseEntity<BaseResponseDto<SignupUserResponseDto>> signup(
-            @Valid @RequestBody SignupUserRequestDto signupUserRequestDto
-    ) {
+    public ResponseEntity<BaseResponseDto<SignupUserResponseDto>> signup(@Valid @RequestBody SignupUserRequestDto signupUserRequestDto) {
         SignupUserResponseDto data = authService.signup(signupUserRequestDto);
 
-        // BaseResponseMapper 사용
+        // Use BaseResponseMapper to map the response
         return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
-    /**
-     * 로그인
-     */
+    // Login (POST /auth/login)
     @PostMapping("/login")
-    public ResponseEntity<BaseResponseDto<AuthMessageResponseDto>> login(
-            @Valid @RequestBody LoginUserRequestDto loginUserRequestDto,
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<BaseResponseDto<AuthMessageResponseDto>> login(@Valid @RequestBody LoginUserRequestDto loginUserRequestDto, HttpServletRequest request) {
         Long userId = authService.login(loginUserRequestDto);
         SessionUserUtils.setId(userId, request);
 
         AuthMessageResponseDto data = new AuthMessageResponseDto("로그인에 성공하였습니다.");
 
-        // BaseResponseMapper 사용
+        // Use BaseResponseMapper to map the response
         return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 
-    /**
-     * 로그아웃
-     */
+    // Logout (POST /auth/logout)
     @PostMapping("/logout")
-    public ResponseEntity<BaseResponseDto<AuthMessageResponseDto>> logout(
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<BaseResponseDto<AuthMessageResponseDto>> logout(HttpServletRequest request) {
         SessionUserUtils.invalidate(request);
 
         AuthMessageResponseDto data = new AuthMessageResponseDto("로그아웃 되었습니다.");
 
-        // BaseResponseMapper 사용
+        // Use BaseResponseMapper to map the response
         return ResponseEntity.ok().body(BaseResponseMapper.map(data));
     }
 }
