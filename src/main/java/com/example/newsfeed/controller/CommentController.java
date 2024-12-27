@@ -93,7 +93,7 @@ public class CommentController {
     }
 
     /*
-    helper method
+    Helper method
      */
     private static Long getUserId(HttpServletRequest request) {
         return SessionUserUtils.getId(request);

@@ -1,7 +1,8 @@
 package com.example.newsfeed.service;
 
 import com.example.newsfeed.bcrypt.Encoder;
-import com.example.newsfeed.dto.user.*;
+import com.example.newsfeed.dto.user.FetchUserResponseDto;
+import com.example.newsfeed.dto.user.UpdateUserNameResponseDto;
 import com.example.newsfeed.exception.CustomException;
 import com.example.newsfeed.exception.ErrorCode;
 import com.example.newsfeed.mapper.UserMapper;
@@ -27,6 +28,7 @@ public class UserService extends UserAbstractService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     protected FetchUserResponseDto executeFetchOneById(Long userId) {
         User user = getNotDeletedUserById(userId);
         return UserMapper.toFetchUserResponseDto(user);

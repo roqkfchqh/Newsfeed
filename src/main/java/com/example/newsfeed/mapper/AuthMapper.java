@@ -6,8 +6,8 @@ import com.example.newsfeed.model.User;
 
 public class AuthMapper {
 
-    // Entity to Dto
-    public static SignupUserResponseDto toSignupUserResponseDto(User user) {
+    // User Entity to Signup Response Dto
+    public static SignupUserResponseDto toDto(User user) {
         return SignupUserResponseDto.builder()
                 .id(user.getId())
                 .userName(user.getName())
@@ -17,8 +17,8 @@ public class AuthMapper {
                 .build();
     }
 
-    // DTO to Entity
-    public static User fromSignupUserRequestDto(SignupUserRequestDto signupUserRequestDto, String hashedPassword) {
+    // Signup Request Dto with hashedPassword to User Entity
+    public static User toEntity(SignupUserRequestDto signupUserRequestDto, String hashedPassword) {
         return User.builder()
                 .name(signupUserRequestDto.getName())
                 .email(signupUserRequestDto.getEmail())

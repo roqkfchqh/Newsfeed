@@ -6,6 +6,7 @@ import com.example.newsfeed.model.User;
 
 public class FriendMapper {
 
+    // Friend Entity to Friend Response Dto
     public static FriendResponseDto toDto(Friend friend) {
         if (friend == null || friend.getFollower() == null || friend.getFollowee() == null) {
             throw new IllegalArgumentException("Friend or associated user is null");
@@ -20,6 +21,7 @@ public class FriendMapper {
                 .build();
     }
 
+    // User Entities to Friend Entity
     public static Friend toEntity(User user, User friend) {
         return Friend.builder()
                 .follower(user)

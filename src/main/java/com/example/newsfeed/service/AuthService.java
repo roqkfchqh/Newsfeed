@@ -11,6 +11,7 @@ import com.example.newsfeed.repository.UserRepository;
 import com.example.newsfeed.service.template.AuthAbstractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,21 +21,27 @@ public class AuthService extends AuthAbstractService {
     private final Encoder encoder;
 
     @Override
+    @Transactional
     protected SignupUserResponseDto executeSignup(SignupUserRequestDto signupUserRequestDto) {
-        User user = AuthMapper.fromSignupUserRequestDto(
+        User user = AuthMapper.toEntity(
                 signupUserRequestDto,
                 encoder.encode(signupUserRequestDto.getPassword())
         );
         User savedUser = this.userRepository.save(user);
-        return AuthMapper.toSignupUserResponseDto(savedUser);
+        return AuthMapper.toDto(savedUser);
     }
 
     @Override
+    @Transactional(readOnly = true)
     protected Long executeLogin(Long userId) {
         return getUserById(userId).getId();
     }
 
-    // validator
+
+     /*
+    validator
+     */
+
     @Override
     protected void validateExistUserEmail(String email) {
         if (this.userRepository.existsByEmail(email)) {
@@ -48,6 +55,12 @@ public class AuthService extends AuthAbstractService {
             throw new CustomException(ErrorCode.WRONG_EMAIL_OR_PASSWORD);
         }
     }
+
+
+
+    /*
+    helper method
+     */
 
     @Override
     protected User getUserByEmail(String email) {

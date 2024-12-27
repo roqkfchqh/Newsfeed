@@ -21,14 +21,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FriendService extends FriendAbstractService {
-    //friend 오류 수정 확인
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
 
-    //중복으로 좋아요 보내 짐
     @Override
-    public FriendResponseDto executeCreateFriend(Long friendId, Long userId){
+    @Transactional
+    public FriendResponseDto executeCreateFriend(Long friendId, Long userId) {
         User user = getUser(userId);
         User friend = getUser(friendId);
 
@@ -38,8 +37,9 @@ public class FriendService extends FriendAbstractService {
         return FriendMapper.toDto(savedFriend);
     }
 
-    @Transactional
+
     @Override
+    @Transactional
     public void executeAcceptFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friend.acceptFollow();
@@ -47,13 +47,15 @@ public class FriendService extends FriendAbstractService {
     }
 
     @Override
+    @Transactional
     public void executeRejectFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friendRepository.delete(friend);
     }
 
     @Override
-    public List<FriendResponseDto> executeGetFollowers(Long userId){
+    @Transactional(readOnly = true)
+    public List<FriendResponseDto> executeGetFollowers(Long userId) {
         List<Friend> followers = friendRepository.findByFollower(userId);
         followers.forEach(friend -> log.info("Friend Data: {}", friend));
         return followers.stream()
@@ -62,6 +64,7 @@ public class FriendService extends FriendAbstractService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<FriendResponseDto> executeGetFollowees(Long userId) {
         List<Friend> followees = friendRepository.findByFollowee(userId); //
         followees.forEach(friend -> log.info("Friend Data: {}", friend));
@@ -71,6 +74,7 @@ public class FriendService extends FriendAbstractService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<FriendResponseDto> executeGetFriends(Long userId) {
         List<Friend> friends = friendRepository.findFriendsByUserId(userId);
         if (friends.isEmpty()) {
@@ -92,36 +96,34 @@ public class FriendService extends FriendAbstractService {
     }
 
     @Override
+    @Transactional
     public void executeDeleteFriend(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
         friendRepository.delete(friend);
     }
 
+
     /*
     validator
      */
 
-    //불리언 형 오류 반환 확인
     @Override
     protected Boolean validateRelation(Long friendId, Long userId) {
         return Boolean.TRUE.equals(friendRepository.findFollowByFollowerIdAndFolloweeId(friendId, userId));
     }
 
-    //친구관계가 true 인지 false 인지
     @Override
     protected Boolean validateRelation(Long relationId) {
         return friendRepository.findFollowById(relationId);
     }
 
-    //이미 요청 중인 관계인지
     @Override
     protected void validateFollowExists(Long friendId, Long userId) {
-        if (friendRepository.existsByFollowerIdAndFolloweeId(friendId, userId)){
+        if (friendRepository.existsByFollowerIdAndFolloweeId(friendId, userId)) {
             throw new CustomException(ErrorCode.ALREADY_FRIEND_REQUEST);
         }
     }
 
-    // 수락/거절 권한 확인(상대방이 나에게 팔로우를 건 것이 맞는지)
     @Override
     protected void validateAuthority(Long relationId, Long userId) {
         Friend friend = getFriend(relationId);
