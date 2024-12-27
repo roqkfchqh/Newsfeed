@@ -81,8 +81,8 @@ public class FriendController {
             HttpServletRequest request
     ) {
         Long userId = getUserId(request);
-        List<FriendResponseDto> response = friendService.getFollowees(userId);
-        return ResponseEntity.ok(friendService.getFollowees(userId));
+        List<FriendResponseDto> followees = friendService.getFollowees(userId);
+        return ResponseEntity.ok(BaseResponseMapper.map(followees));
     }
 
     // Delete a friend relationship (DELETE /friends/{relationId})
